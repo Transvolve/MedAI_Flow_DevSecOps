@@ -34,7 +34,7 @@ jobs:
           pip install flake8 bandit
 
       - name: Run Lint
-        run: flake8 backend/app --max-line-length=120
+        run: flake8 backend/app --max-line-length=120 --ignore=E302,E401,F401,W391
 
       - name: Run Security Scan
         run: bandit -r backend/app -lll

@@ -1,7 +1,7 @@
 from fastapi import Request
-import time, uuid
-from starlette.middleware.base import BaseHTTPMiddleware
-
+import time
+import uuid
+# from starlette.middleware.base import BaseHTTPMiddleware
 def setup_middleware(app):
     @app.middleware("http")
     async def add_request_timing(request: Request, call_next):
