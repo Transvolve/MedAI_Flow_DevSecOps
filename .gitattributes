@@ -1,2 +1,18 @@
-# Auto detect text files and perform LF normalization
+#This ensures consistent line endings and binary file handling across platforms (important for team and CI consistency).
+
+# Auto normalize line endings
 * text=auto
+
+# Treat docs and Markdown files as UTF-8
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.py text eol=lf
+*.tf text eol=lf
+*.sh text eol=lf
+
+# Mark binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.h5 binary
