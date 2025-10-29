@@ -82,7 +82,7 @@ jobs:
           ls -la backend/app || true
           test -d backend/app || (echo "❌ backend/app missing" && exit 1)
           test -f backend/Dockerfile || (echo "❌ backend/Dockerfile missing" && exit 1)
-          
+
       - name: Debug environment values
         run: |
           echo "ACR_NAME=${{ secrets.ACR_NAME }}"
@@ -98,7 +98,8 @@ jobs:
         env:
           ACR_NAME: ${{ secrets.ACR_NAME }}
         run: |
-          az acr login --name "$ACR_NAME"
+          az acr login --name "$ACR_NAME" --subscription ${{ fromJson(secrets.AZURE_CREDENTIALS).subscriptionId }}
+
 
       - name: Build and Push Docker Image
         working-directory: backend
