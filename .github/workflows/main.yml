@@ -42,9 +42,6 @@ jobs:
   build_push:
     runs-on: ubuntu-latest
     needs: test
-    defaults:
-      run:
-        working-directory: ./backend
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -55,9 +52,15 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Docker build and push
+        working-directory: ./backend
         run: |
+          echo "🔹 Logging in to Azure Container Registry..."
           az acr login --name ${{ secrets.ACR_NAME }}
-          docker build -t ${{ secrets.ACR_NAME }}.azurecr.io/medai_flow_backend:latest -f Dockerfile .
+
+          echo "🔹 Building Docker image..."
+          docker build -f Dockerfile -t ${{ secrets.ACR_NAME }}.azurecr.io/medai_flow_backend:latest .
+
+          echo "🔹 Pushing image to ACR..."
           docker push ${{ secrets.ACR_NAME }}.azurecr.io/medai_flow_backend:latest
 
   # ---------------------------
