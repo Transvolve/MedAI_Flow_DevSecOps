@@ -1,6 +1,7 @@
+---
 name: MedAI_Flow_DevSecOps CI/CD Pipeline
 
-on:
+"on":
   push:
     branches:
       - main
@@ -62,7 +63,7 @@ jobs:
         run: pytest -q --maxfail=1 --disable-warnings -v tests/
 
   # ---------------------------
-  # 3️⃣ Docker Build & Push
+  # 3️⃣ Build & Push Docker Image
   # ---------------------------
   build_push:
     runs-on: ubuntu-latest
@@ -71,30 +72,42 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Validate Docker context
+      - name: Preflight check
         run: |
-          echo "🔍 Checking backend folder..."
-          if [ ! -f backend/Dockerfile ]; then
-            echo "❌ ERROR: Dockerfile not found in backend/"
-            exit 1
-          fi
-          echo "✅ Dockerfile found at backend/Dockerfile"
+          echo "== repo root =="
+          ls -la
+          echo "== backend =="
+          ls -la backend || true
+          echo "== backend/app =="
+          ls -la backend/app || true
+          test -d backend/app || (echo "❌ backend/app missing" && exit 1)
+          test -f backend/Dockerfile || (echo "❌ backend/Dockerfile missing" && exit 1)
 
       - name: Azure Login
         uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Build and Push Docker Image
+      - name: Login to ACR
+        env:
+          ACR_NAME: ${{ secrets.ACR_NAME }}
         run: |
-          echo "🔹 Logging in to ACR..."
-          az acr login --name ${{ secrets.ACR_NAME }}
+          az acr login --name "$ACR_NAME"
 
-          echo "🔹 Building Docker image..."
-          docker build -f backend/Dockerfile -t ${{ secrets.ACR_NAME }}.azurecr.io/medai_flow_backend:latest backend/
+      - name: Build and Push Docker Image
+        working-directory: backend
+        env:
+          ACR_NAME: ${{ secrets.ACR_NAME }}
+        run: |
+          ACR="${ACR_NAME}.azurecr.io"
+          IMAGE_NAME="medai_flow_backend"
+          TAG="latest"
 
-          echo "🔹 Pushing Docker image..."
-          docker push ${{ secrets.ACR_NAME }}.azurecr.io/medai_flow_backend:latest
+          echo "🔹 Building ${ACR}/${IMAGE_NAME}:${TAG} ..."
+          docker build -t "${ACR}/${IMAGE_NAME}:${TAG}" .
+
+          echo "🔹 Pushing ${ACR}/${IMAGE_NAME}:${TAG} ..."
+          docker push "${ACR}/${IMAGE_NAME}:${TAG}"
 
   # ---------------------------
   # 4️⃣ AKS Deployment
@@ -108,14 +121,18 @@ jobs:
 
       - name: Azure Login
         uses: azure/login@v2
+        # yamllint disable-line rule:truthy
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Get AKS Credentials
+        env:
+          RESOURCE_GROUP: ${{ secrets.RESOURCE_GROUP }}
+          AKS_CLUSTER: ${{ secrets.AKS_CLUSTER }}
         run: |
           az aks get-credentials \
-            --resource-group ${{ secrets.RESOURCE_GROUP }} \
-            --name ${{ secrets.AKS_CLUSTER }} \
+            --resource-group "$RESOURCE_GROUP" \
+            --name "$AKS_CLUSTER" \
             --overwrite-existing
 
       - name: Deploy to AKS
