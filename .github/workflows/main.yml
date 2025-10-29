@@ -50,6 +50,7 @@ jobs:
     needs: test
     steps:
       - uses: actions/checkout@v4
+
       - name: Azure Login
         uses: azure/login@v2
         with:
@@ -58,7 +59,7 @@ jobs:
       - name: Docker build and push
         run: |
           az acr login --name ${{ secrets.ACR_NAME }}
-          docker build -t ${{ secrets.ACR_NAME }}.azurecr.io/medai_flow_backend:latest -f backend/Dockerfile .
+          docker build -t ${{ secrets.ACR_NAME }}.azurecr.io/medai_flow_backend:latest -f backend/Dockerfile backend
           docker push ${{ secrets.ACR_NAME }}.azurecr.io/medai_flow_backend:latest
 
   deploy:
