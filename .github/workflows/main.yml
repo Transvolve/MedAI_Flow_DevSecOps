@@ -82,6 +82,12 @@ jobs:
           ls -la backend/app || true
           test -d backend/app || (echo "❌ backend/app missing" && exit 1)
           test -f backend/Dockerfile || (echo "❌ backend/Dockerfile missing" && exit 1)
+          
+      - name: Debug environment values
+        run: |
+          echo "ACR_NAME=${{ secrets.ACR_NAME }}"
+          echo "AKS_CLUSTER=${{ secrets.AKS_CLUSTER }}"
+          echo "RESOURCE_GROUP=${{ secrets.RESOURCE_GROUP }}"
 
       - name: Azure Login
         uses: azure/login@v2
