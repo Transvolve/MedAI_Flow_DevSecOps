@@ -4,10 +4,16 @@ name: MedAI_Flow_DevSecOps CI/CD Pipeline
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
+      - feature/**
     paths:
       - 'backend/**'
       - '.github/workflows/**'
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
       
 permissions:
   contents: read
