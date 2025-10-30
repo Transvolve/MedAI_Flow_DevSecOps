@@ -1,8 +1,0 @@
-service:
-  name: medai_backend
-  host: 0.0.0.0
-  port: 8000
-
-security:
-  jwt_secret: "change-me"
-  token_expiry_min: 60
