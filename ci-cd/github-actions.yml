@@ -1,3 +1,7 @@
+# ARCHIVED FILE — Legacy CI/CD pipeline reference. 
+# Active pipeline: .github/workflows/main.yml
+# Can be removed later
+
 name: MedAI_Flow_DevSecOps CI/CD Pipeline
 
 on:

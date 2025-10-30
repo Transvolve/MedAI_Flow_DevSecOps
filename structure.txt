@@ -1,0 +1,50 @@
+├── .flake8
+├── .gitattributes
+├── .github
+│   └── workflows
+│       └── main.yml
+├── .gitignore
+├── .venv
+├── AZURE_CREDENTIALS.json
+├── backend
+│   ├── app
+│   │   ├── config.yaml
+│   │   ├── main.py
+│   │   ├── middleware.py
+│   │   ├── routes.py
+│   │   ├── security.py
+│   │   └── utils.py
+│   └── Dockerfile
+├── ci-cd
+│   └── github-actions.yml
+├── compliance
+│   ├── fda_21cfr820_traceability_matrix.md
+│   ├── iso_27001_security_controls.md
+│   ├── iso_62304_lifecycle_plan.md
+│   └── risk_management_summary.md
+├── docs
+│   ├── architecture_diagram.png
+│   ├── debug.txt
+│   ├── latency_scaling_summary.md
+│   └── pipeline_flow.png
+├── infra
+│   ├── aks_deploy.yaml
+│   ├── ingress.yaml
+│   ├── scripts
+│   │   └── verify_acr_access.ps1
+│   ├── storage.yaml
+│   └── terraform
+│       ├── .terraform
+│       ├── .terraform.lock.hcl
+│       ├── main.tf
+│       └── terraform.tfstate
+├── ml
+│   ├── cache_manager.py
+│   ├── inference.py
+│   └── preprocess.py
+├── notebooks
+├── README.md
+└── tests
+    ├── test_api.py
+    ├── test_model.py
+    └── test_security.py
