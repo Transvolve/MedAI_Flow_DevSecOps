@@ -1,4 +1,5 @@
 ---
+  # just for generate autorun for testing - can be delete this comment any time
 name: MedAI_Flow_DevSecOps CI/CD Pipeline
 
 on:
