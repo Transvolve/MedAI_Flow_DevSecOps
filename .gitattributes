@@ -1,18 +1,67 @@
-#This ensures consistent line endings and binary file handling across platforms (important for team and CI consistency).
+# ==========================================================
+# MedAI_Flow_DevSecOps — Production-Grade .gitattributes
+# Ensures consistent line endings, encoding, and binary handling
+# across platforms (Windows, macOS, Linux)
+# ==========================================================
 
-# Auto normalize line endings
-* text=auto
+# Auto normalize all text files to LF (Git handles CRLF locally)
+* text=auto eol=lf
 
-# Treat docs and Markdown files as UTF-8
-*.md text eol=lf
-*.yml text eol=lf
-*.yaml text eol=lf
-*.py text eol=lf
-*.tf text eol=lf
-*.sh text eol=lf
+# ----------------------------------------------------------
+# Text-based source and config files
+# ----------------------------------------------------------
+*.md      text eol=lf
+*.yml     text eol=lf
+*.yaml    text eol=lf
+*.py      text eol=lf
+*.tf      text eol=lf
+*.sh      text eol=lf
+*.ps1     text eol=crlf
+*.bat     text eol=crlf
+*.json    text eol=lf
+*.txt     text eol=lf
+*.cfg     text eol=lf
+*.ini     text eol=lf
+*.csv     text eol=lf
 
-# Mark binary files
-*.png binary
-*.jpg binary
+# ----------------------------------------------------------
+# Infrastructure and container files
+# ----------------------------------------------------------
+Dockerfile text eol=lf
+*.dockerignore text eol=lf
+*.gitignore text eol=lf
+*.gitattributes text eol=lf
+
+# ----------------------------------------------------------
+# Binary / Data / Model files
+# ----------------------------------------------------------
+*.png  binary
+*.jpg  binary
 *.jpeg binary
-*.h5 binary
+*.gif  binary
+*.h5   binary
+*.onnx binary
+*.pkl  binary
+*.zip  binary
+*.gz   binary
+*.tar  binary
+*.ico  binary
+*.pdf  binary
+*.docx binary
+*.xlsx binary
+
+# ----------------------------------------------------------
+# Prevent CRLF issues in test reports & logs
+# ----------------------------------------------------------
+*.log   text eol=lf
+*.xml   text eol=lf
+*.html  text eol=lf
+
+# ----------------------------------------------------------
+# Enforce UTF-8 encoding (recommended for CI/CD consistency)
+# ----------------------------------------------------------
+*.py text working-tree-encoding=UTF-8
+*.md text working-tree-encoding=UTF-8
+*.yml text working-tree-encoding=UTF-8
+*.yaml text working-tree-encoding=UTF-8
+*.tf text working-tree-encoding=UTF-8

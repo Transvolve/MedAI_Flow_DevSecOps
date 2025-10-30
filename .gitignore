@@ -143,3 +143,6 @@ cache/
 *.sqlite
 *.db
 *.db-journal
+
+# BFG cleanup logs
+*.bfg-report/
