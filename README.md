@@ -79,8 +79,8 @@ MedAI_Flow_DevSecOps/
     └── test_security.py
 
 **CI/CD Pipeline Overview**
-GitHub Actions Workflow — main.yml
-Every commit to main triggers an automated four-stage pipeline:
+Every **push or PR to `main`** triggers the following automated stages  
+(GitHub Actions → [`.github/workflows/main.yml`](.github/workflows/main.yml)):
 
      Stage	          ||           Purpose	                      ||      Tools	    ||  Status
 ✅ Lint & Security Scan ||  Enforces coding standards and static       ||  flake8, bandit     ||  Passed
@@ -93,9 +93,9 @@ Every commit to main triggers an automated four-stage pipeline:
                          || Service (AKS) and verifies rollout	      ||                      ||
 
 📊 All jobs run in GitHub-hosted Ubuntu runners — no local Docker required.
+Pip caching is enabled to reduce CI runtime by >30%.
 
 **How to Review and Run This Project:**
-
 For Reviewers (No Setup Required):
 Visit the repository’s Actions tab to see all 4 CI/CD stages passing (green checkmarks)
 Review logs, source, and documentation directly from GitHub
@@ -125,11 +125,15 @@ All container builds and deployments occur automatically in the pipeline:
 1. Build image → push to Azure Container Registry (medaiflowacr)
 2. Deploy container → Azure Kubernetes Service (rg-medai-flow)
 3. Rollout verification via kubectl rollout status
-4. Azure RBAC validation via verify_acr_access.ps1
+4. Azure RBAC validation via infra/scripts/verify_acr_access.ps1
 
-**Infrastructure Deployment:**
-Terraform under infra/terraform provisions the entire Azure stack (RG + ACR + AKS).
-Sensitive state files and credentials are excluded from version control.
+**Infrastructure as Code**
+Terraform (infra/terraform) provisions:
+1. Azure Resource Group (rg-medai-flow)
+2. Azure Container Registry (ACR)
+3. Azure Kubernetes Service (AKS)
+State files & secrets are excluded from version control.
+Secrets handled via GitHub Secrets and Azure Key Vault.
 
 **Security & Compliance Notes:**
 * No personal credentials or Terraform state files are committed.
@@ -172,6 +176,19 @@ Sensitive state files and credentials are excluded from version control.
 
 5. (Optional): Run locally → uvicorn app.main:app
      → Show /health and /version endpoints live.
+
+**Branching & Testing Workflow**
+Branch	                         Purpose
+main	                    Stable production-ready pipeline
+feature/*	               Experimental branches for testing & new features
+
+Typical flow:
+git checkout -b feature/test-latency-fix
+# make edits → commit → push
+git push -u origin feature/test-latency-fix
+# then open PR → merge into main → auto CI/CD run
+
+Manual triggers also available via Run workflow button (workflow_dispatch).
 
 **Next Steps (Phase 2–6 Roadmap — Latency, Reliability & Scalability Focus)**
 | Phase | Focus Area                                | Objective                                            |
