@@ -42,6 +42,8 @@ MedAI_Flow_DevSecOps/
 |
 ├── ci-cd
 │   └── github-actions.yml
++ # (Optional)
++ # ci-cd/github-actions.yml — legacy or sample workflow, not used in production pipeline
 ├── compliance                               # Regulatory documentation templates
 │   ├── fda_21cfr820_traceability_matrix.md
 │   ├── iso_27001_security_controls.md
@@ -96,26 +98,37 @@ Every **push or PR to `main`** triggers the following automated stages
 Pip caching is enabled to reduce CI runtime by >30%.
 
 **How to Review and Run This Project:**
-For Reviewers (No Setup Required):
-Visit the repository’s Actions tab to see all 4 CI/CD stages passing (green checkmarks)
-Review logs, source, and documentation directly from GitHub
+For Reviewers (No Setup Required)
 
-Reviewer Guidance:
-You do not need to install Docker Desktop or Azure locally to review this project.
+     1. Visit the repository’s Actions tab to see all four CI/CD stages passing (green checkmarks).
 
-For Local Testing (Optional):
-You can run the FastAPI backend without Docker Desktop:
+     2. Review logs, code, and documentation directly from GitHub — no local setup, Docker, or Azure login required.
 
-bash code snippet:
+# For Local Testing (Optional):
+You can run the FastAPI backend locally without Docker or Azure.
+
+```bash
+# Clone the repository
 git clone https://github.com/Transvolve/MedAI_Flow_DevSecOps.git
 cd MedAI_Flow_DevSecOps/backend
-pip install -r requirements.txt
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8080
 
-Access locally:
+# Install dependencies (includes FastAPI, Uvicorn, Pytest, Flake8, Bandit)
+pip install -r ../requirements-ci.txt
+
+# Run the FastAPI app
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8080
+```
+
+# Access locally at:
 http://127.0.0.1:8080/health
 http://127.0.0.1:8080/version
 http://127.0.0.1:8080/docs
+
+# Tip: If your IDE or terminal warns that packages like uvicorn, flake8, pytest, or bandit are not installed, ensure the correct Python environment is activated and re-run the pip install command above.
+
+# For CI/CD Reference
+
+The automated GitHub Actions pipeline installs the same dependencies from requirements-ci.txt during every run to guarantee consistent environments between local testing and the hosted runner.
 
 **Code & Architecture:**
 Browse source code, Terraform scripts, and CI/CD workflows to see how automation and compliance are integrated.
@@ -233,8 +246,8 @@ Manual triggers also available via Run workflow button (workflow_dispatch).
 3. Automate traceability matrix updates via scripts
 4. Sign & attest containers (Cosign / Sigstore)
 
-**License:**
-NOT Implemeted yet: Released under the MIT License — see the LICENSE file for details.
+**License**
+This project will be released under the MIT License (LICENSE file to be added in the next update).
 
 **Contributions:**
 Contributions and extensions (e.g., model training, advanced monitoring, IaC enhancements) are welcome via pull requests.
