@@ -1,5 +1,3 @@
-# Just added thsi comments for testing. Can be deleted if found
-
 **MedAI_Flow_DevSecOps — Secure Medical AI DevSecOps Platform:**
 This repository demonstrates a secure, automated, and standards-compliant CI/CD pipeline for medical imaging AI software.
 It integrates FastAPI, Azure Cloud (AKS + ACR), and GitHub Actions to showcase a production-grade, audit-ready DevSecOps workflow aligned with IEC 62304, ISO 13485, ISO 14971, ISO 27001, and FDA 21 CFR 820.

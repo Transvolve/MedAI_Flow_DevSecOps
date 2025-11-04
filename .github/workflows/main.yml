@@ -1,5 +1,4 @@
 ---
-  # just for generate autorun for testing - can be delete this comment any time
 name: MedAI_Flow_DevSecOps CI/CD Pipeline
 
 on:
@@ -7,9 +6,11 @@ on:
     branches:
       - main
       - feature/**
-    paths:
-      - 'backend/**'
-      - '.github/workflows/**'
+    # The following lines limit CI/CD runs only when backend or workflow files change.
+    # Commented out temporarily to enable full pipeline runs on any push (for demo/testing).
+    # paths:
+    #   - 'backend/**'
+    #   - '.github/workflows/**'
   pull_request:
     branches:
       - main
