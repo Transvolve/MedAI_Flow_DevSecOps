@@ -1,24 +1,26 @@
 from fastapi import FastAPI  # Request
 from .routes import router
-# from .middleware import setup_middleware
-# import logging
+from .middleware import setup_middleware
+import logging
 import time
+from .config import settings
 
-app = FastAPI(title="MedAI Flow Backend", version="1.0")
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s %(message)s")
+
+app = FastAPI(title=settings.app_name, version=settings.app_version)
 
 # Register routes
 app.include_router(router)
 
-# Optional middleware (commented out for now)
-# setup_middleware(app)
+setup_middleware(app)
 
 
 @app.get("/health")
-async def health():
+async def health() -> dict:
     return {"status": "ok", "uptime": time.time()}
 
 
 @app.get("/version")
-async def get_version():
+async def get_version() -> dict:
     """Temporary test endpoint to trigger CI/CD."""
-    return {"version": "0.0.1-ci-test"}
+    return {"version": settings.app_version}

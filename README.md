@@ -3,19 +3,17 @@ This repository demonstrates a secure, automated, and standards-compliant CI/CD 
 It integrates FastAPI, Azure Cloud (AKS + ACR), and GitHub Actions to showcase a production-grade, audit-ready DevSecOps workflow aligned with IEC 62304, ISO 13485, ISO 14971, ISO 27001, and FDA 21 CFR 820.
 
 **Key Features:**
-⚡ FastAPI backend for low-latency AI/ML model inference
 
-🐳 Docker containerization for reproducible deployment
-
-☁️ Terraform (IaC) to provision Azure resources (RG + ACR + AKS)
-
-🔄 GitHub Actions CI/CD for automated build, test, and deployment
-
-🔐 DevSecOps integration — linting, static analysis, and security scanning
-
-📈 Scalable Kubernetes deployment with Azure AKS + LoadBalancer ingress
-
-📜 Compliance templates for FDA and ISO documentation alignment
+- **FastAPI Backend** - Low-latency AI/ML model inference with typed APIs
+- **Environment-Based Configuration** - Pydantic BaseSettings for secure config management
+- **Request Middleware** - Correlation IDs and request timing for observability
+- **ONNX Session Caching** - Optimized model inference performance
+- **Docker Containerization** - Reproducible deployment
+- **Terraform (IaC)** - Provision Azure resources (RG + ACR + AKS)
+- **GitHub Actions CI/CD** - Automated build, test, and deployment
+- **DevSecOps Integration** - Linting, static analysis, and security scanning
+- **Scalable Kubernetes Deployment** - Azure AKS + LoadBalancer ingress
+- **Compliance Templates** - FDA and ISO documentation alignment
 
 **Project Structure:**
 MedAI_Flow_DevSecOps/
@@ -32,12 +30,12 @@ MedAI_Flow_DevSecOps/
 ├── AZURE_CREDENTIALS.json
 ├── backend                                  # FastAPI backend source
 │   ├── app
-│   │   ├── config.yaml
-│   │   ├── main.py
-│   │   ├── middleware.py
-│   │   ├── routes.py
-│   │   ├── security.py
-│   │   └── utils.py
+│   │   ├── config.py                        # Environment-based configuration
+│   │   ├── main.py                          # FastAPI app initialization
+│   │   ├── middleware.py                    # Request middleware (correlation IDs, timing)
+│   │   ├── routes.py                        # API endpoints (typed POST /infer)
+│   │   ├── security.py                      # Bearer token authentication
+│   │   └── utils.py                         # Utility functions (latency timer)
 │   └── Dockerfile
 |
 ├── ci-cd
@@ -51,8 +49,9 @@ MedAI_Flow_DevSecOps/
 │   └── risk_management_summary.md
 |
 ├── docs                                    # Architecture & visual documentation
-│   ├── architecture_diagram.png
-│   ├── debug.txt
+│   ├── ARCHITECTURE.md                     # System architecture documentation
+│   ├── architecture_diagram.png            # Legacy diagram (use ARCHITECTURE.md)
+│   ├── DEVELOPMENT_PLAN.md                 # Comprehensive development roadmap
 │   ├── latency_scaling_summary.md
 │   └── pipeline_flow.png
 |
@@ -81,20 +80,17 @@ MedAI_Flow_DevSecOps/
     └── test_security.py
 
 **CI/CD Pipeline Overview**
-Every **push or PR to `main`** triggers the following automated stages  
-(GitHub Actions → [`.github/workflows/main.yml`](.github/workflows/main.yml)):
 
-     Stage	          ||           Purpose	                      ||      Tools	    ||  Status
-✅ Lint & Security Scan ||  Enforces coding standards and static       ||  flake8, bandit     ||  Passed
-                         ||      security analysis                     ||                     ||  Passed
-✅ Unit Tests           ||  Validates API logic and integration	     || pytest, FastAPI     ||  Passed
-                         ||                                            ||    TestClient        ||  
-✅ Build & Push	        || Builds and publishes Docker images          || Docker, az acr login || Passed
-                         ||  to Azure Container Registry (ACR)	      ||                      ||
-✅ Deploy	             ||  Deploys application to Azure Kubernetes    ||  kubectl, az aks	    ||  Passed
-                         || Service (AKS) and verifies rollout	      ||                      ||
+Every **push or PR to `main`** triggers the following automated stages (GitHub Actions → [`.github/workflows/main.yml`](.github/workflows/main.yml)):
 
-📊 All jobs run in GitHub-hosted Ubuntu runners — no local Docker required.
+| Stage | Purpose | Tools | Status |
+|-------|---------|-------|--------|
+| **Lint & Security Scan** | Enforces coding standards and static security analysis | flake8, bandit | Passed |
+| **Unit Tests** | Validates API logic and integration | pytest, FastAPI TestClient | Passed |
+| **Build & Push** | Builds and publishes Docker images to Azure Container Registry (ACR) | Docker, az acr login | Passed |
+| **Deploy** | Deploys application to Azure Kubernetes Service (AKS) and verifies rollout | kubectl, az aks | Passed |
+
+All jobs run in GitHub-hosted Ubuntu runners — no local Docker required.
 Pip caching is enabled to reduce CI runtime by >30%.
 
 **How to Review and Run This Project:**
@@ -120,9 +116,23 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8080
 ```
 
 # Access locally at:
-http://127.0.0.1:8080/health
-http://127.0.0.1:8080/version
-http://127.0.0.1:8080/docs
+http://127.0.0.1:8080/health          # Health check endpoint
+http://127.0.0.1:8080/version        # Version endpoint
+http://127.0.0.1:8080/docs           # Interactive API documentation (Swagger UI)
+http://127.0.0.1:8080/infer          # ML inference endpoint (POST, requires Bearer token)
+
+# API Usage Example:
+# POST /infer requires Bearer token authentication
+curl -X POST "http://127.0.0.1:8080/infer" \
+  -H "Authorization: Bearer test-token" \
+  -H "Content-Type: application/json" \
+  -d '{"data": [0.0, 1.0, 0.5]}'
+
+# Configuration:
+# Environment variables can be set via .env file or environment variables:
+# - API_TOKEN: Bearer token for authentication (default: "test-token")
+# - APP_NAME: Application name (default: "MedAI Flow Backend")
+# - APP_VERSION: Application version (default: "1.0")
 
 # Tip: If your IDE or terminal warns that packages like uvicorn, flake8, pytest, or bandit are not installed, ensure the correct Python environment is activated and re-run the pip install command above.
 
@@ -130,7 +140,76 @@ http://127.0.0.1:8080/docs
 
 The automated GitHub Actions pipeline installs the same dependencies from requirements-ci.txt during every run to guarantee consistent environments between local testing and the hosted runner.
 
+**Architecture Overview**
+
+For detailed architecture documentation, see [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
+
+**System Architecture Diagram:**
+
+```mermaid
+graph TB
+    subgraph "Developer Workflow"
+        DEV[Developer] -->|Push Code| GIT[GitHub Repository]
+        GIT -->|Triggers| CI[GitHub Actions CI/CD]
+    end
+    
+    subgraph "CI/CD Pipeline"
+        CI -->|Stage 1| LINT[Lint & Security Scan]
+        LINT -->|Stage 2| TEST[Unit Tests]
+        TEST -->|Stage 3| BUILD[Build Docker Image]
+        BUILD -->|Stage 4| PUSH[Push to ACR]
+        PUSH -->|Stage 5| DEPLOY[Deploy to AKS]
+    end
+    
+    subgraph "Azure Cloud Infrastructure"
+        PUSH -->|Stores| ACR[Azure Container Registry]
+        DEPLOY -->|Manages| AKS[Azure Kubernetes Service]
+        ACR -->|Provides Images| AKS
+        TERRAFORM[Terraform IaC] -->|Provisions| ACR
+        TERRAFORM -->|Provisions| AKS
+    end
+    
+    subgraph "Application Layer"
+        AKS -->|Routes| INGRESS[Ingress Controller]
+        INGRESS -->|HTTP/HTTPS| POD[FastAPI Pods]
+        POD -->|Requests| FASTAPI[FastAPI Application]
+        FASTAPI -->|Middleware| MIDDLEWARE[Request Middleware]
+        MIDDLEWARE -->|Auth| SECURITY[Security Module]
+        SECURITY -->|Routes| ROUTES[API Routes]
+        ROUTES -->|ML Inference| ML[ML Inference Engine]
+        ML -->|Cache| CACHE[ONNX Session Cache]
+    end
+    
+    subgraph "External Access"
+        CLIENT[Client/User] -->|API Requests| INGRESS
+        CLIENT -->|Swagger UI| FASTAPI
+    end
+    
+    style DEV fill:#e1f5ff
+    style GIT fill:#e1f5ff
+    style CI fill:#fff4e1
+    style ACR fill:#e8f5e9
+    style AKS fill:#e8f5e9
+    style FASTAPI fill:#f3e5f5
+    style ML fill:#f3e5f5
+```
+
 **Code & Architecture:**
+
+**API Endpoints:**
+- `GET /health` - Health check endpoint (no authentication required)
+- `GET /version` - Returns application version (no authentication required)
+- `POST /infer` - ML model inference endpoint (requires Bearer token authentication)
+  - Request body: `{"data": [float, ...], "width": int (optional), "height": int (optional)}`
+  - Response: `{"result": {"outputs": ...}, "latency_ms": float}`
+
+**Key Components:**
+- `config.py` - Environment-based configuration using Pydantic BaseSettings
+- `middleware.py` - Request middleware for correlation IDs and timing headers
+- `routes.py` - Typed API endpoints with Pydantic request/response models
+- `security.py` - Bearer token authentication
+- `ml/inference.py` - ONNX model inference with session caching
+
 Browse source code, Terraform scripts, and CI/CD workflows to see how automation and compliance are integrated.
 
 **Container & Deployment (Cloud)**
@@ -155,45 +234,53 @@ Secrets handled via GitHub Secrets and Azure Key Vault.
 * Project artifacts follow IEC 62304 lifecycle and ISO 27001 security controls templates.
 
 **Security & Compliance Highlights**
-| Control Area                 | Implementation                   | Reference                                         |
-| ---------------------------- | -------------------------------- | ------------------------------------------------- |
-| **Secure Coding**            | Linting + Static Scan            | `flake8`, `bandit`                                |
-| **Credential Management**    | GitHub Secrets + Azure Key Vault | `.github/workflows/main.yml`                      |
-| **Infrastructure Integrity** | Terraform IaC                    | `/infra/terraform`                                |
-| **Software Lifecycle**       | IEC 62304-compliant docs         | `/compliance/iso_62304_lifecycle_plan.md`         |
-| **Risk Management**          | ISO 14971 mapping                | `/compliance/risk_management_summary.md`          |
-| **Traceability**             | CFR 21 Part 820 Matrix           | `/compliance/fda_21cfr820_traceability_matrix.md` |
+
+| Control Area | Implementation | Reference |
+|--------------|----------------|-----------|
+| **Secure Coding** | Linting + Static Scan | `flake8`, `bandit` |
+| **Credential Management** | GitHub Secrets + Azure Key Vault | `.github/workflows/main.yml` |
+| **Infrastructure Integrity** | Terraform IaC | `/infra/terraform` |
+| **Software Lifecycle** | IEC 62304-compliant docs | `/compliance/iso_62304_lifecycle_plan.md` |
+| **Risk Management** | ISO 14971 mapping | `/compliance/risk_management_summary.md` |
+| **Traceability** | CFR 21 Part 820 Matrix | `/compliance/fda_21cfr820_traceability_matrix.md` |
 
 
-**Summary:**
-| Area               | Technology                     | Purpose                             |
-| ------------------ | ------------------------------ | ----------------------------------- |
-| **Infrastructure** | Terraform + Azure AKS/ACR      | Automated provisioning              |
-| **Application**    | Python 3.11 / FastAPI          | Medical imaging backend             |
-| **CI/CD**          | GitHub Actions                 | Continuous Integration + Deployment |
-| **Security**       | Bandit / Flake8 / RBAC         | DevSecOps Compliance                |
-| **Compliance**     | ISO 13485, 62304, 14971, 27001 | Medical Software Lifecycle          |
+**Summary**
+
+| Area | Technology | Purpose |
+|------|------------|---------|
+| **Infrastructure** | Terraform + Azure AKS/ACR | Automated provisioning |
+| **Application** | Python 3.11 / FastAPI | Medical imaging backend |
+| **CI/CD** | GitHub Actions | Continuous Integration + Deployment |
+| **Security** | Bandit / Flake8 / RBAC | DevSecOps Compliance |
+| **Compliance** | ISO 13485, 62304, 14971, 27001 | Medical Software Lifecycle |
 
 **Demo Instructions**
 1. Open the repository → Actions tab
      → Show all 4 pipeline stages are green.
 
-2. Open .github/workflows/main.yml
-     → Explain each stage (lint, test, build, deploy).
+2. Open docs/ARCHITECTURE.md
+     → Show system architecture diagram and data flow.
 
-3. Show /infra/scripts/verify_acr_access.ps1
+3. Open .github/workflows/main.yml
+     → Explain each CI/CD stage (lint, test, build, deploy).
+
+4. Show /infra/scripts/verify_acr_access.ps1
      → Demonstrate Azure authentication verification.
 
-4. Open /compliance/iso_62304_lifecycle_plan.md
+5. Open /compliance/iso_62304_lifecycle_plan.md
      → Show traceability and lifecycle documentation.
 
-5. (Optional): Run locally → uvicorn app.main:app
-     → Show /health and /version endpoints live.
+6. (Optional): Run locally → uvicorn app.main:app
+     → Show /health, /version, and /infer endpoints live.
+     → Demonstrate POST /infer with Bearer token authentication.
 
 **Branching & Testing Workflow**
-Branch	                         Purpose
-main	                    Stable production-ready pipeline
-feature/*	               Experimental branches for testing & new features
+
+| Branch | Purpose |
+|--------|---------|
+| `main` | Stable production-ready pipeline |
+| `feature/*` | Experimental branches for testing & new features |
 
 Typical flow:
 git checkout -b feature/test-latency-fix
@@ -203,48 +290,61 @@ git push -u origin feature/test-latency-fix
 
 Manual triggers also available via Run workflow button (workflow_dispatch).
 
-**Next Steps (Phase 2–6 Roadmap — Latency, Reliability & Scalability Focus)**
-| Phase | Focus Area                                | Objective                                            |
-| **2** | Performance & Latency Optimization        | Reduce inference and API response times              |
-| **3** | Reliability & Observability               | Improve fault-tolerance and system health visibility |
-| **4** | Scalability & Resource Optimization       | Enable dynamic workload scaling and efficiency       |
-| **5** | Modular Architecture Alignment            | Strengthen interfaces and module boundaries          |
-| **6** | Advanced Security & Compliance Automation | Mature DevSecOps posture and continuous compliance   |
+**Development Roadmap**
 
-🔹 Phase 2 — Performance & Latency Optimization:
+This project follows a dual-track development approach: **Regulatory Compliance** (Phase 1-7) and **Performance & Scalability** (Phase 2-6). Both tracks run in parallel to ensure regulatory readiness while maintaining operational excellence.
 
-1. Implement async FastAPI routes and optimize I/O
-2. Profile model inference with asyncio, uvloop
-3. Add caching layer (Redis / LRU) for repeat inference
-4. Benchmark latency under concurrent load (locust, k6)
+**Detailed Development Plan:** See [`docs/DEVELOPMENT_PLAN.md`](docs/DEVELOPMENT_PLAN.md) for comprehensive phase-by-phase deliverables, timelines, and implementation details.
 
-🔹 Phase 3 — Reliability & Observability:
+---
 
-1. Integrate OpenTelemetry tracing & structured logging
-2. Add liveness/readiness probes in AKS manifests
-3. Implement retry logic for transient failures
-4. Deploy Prometheus + Grafana dashboards
+### Track 1: Regulatory Compliance & Commercial Readiness (Phase 1-7)
+**Priority: HIGH** — Required for FDA submissions and commercial contracts
 
-🔹 Phase 4 — Scalability & Resource Optimization
+| Phase | Focus Area | Timeline | Priority |
+|-------|------------|----------|----------|
+| **Phase 1** | Security Hardening<br>(JWT auth, security headers, rate limiting) | Week 1-2 | HIGH |
+| **Phase 2** | Input Validation & Error Handling | Week 2-3 | HIGH |
+| **Phase 3** | Structured Logging & Audit Trails | Week 3-4 | HIGH |
+| **Phase 4** | Test Coverage Expansion<br>(>80% coverage) | Week 4-5 | HIGH |
+| **Phase 5** | CI/CD Enhancements<br>(mypy, SBOM, vulnerability scanning) | Week 5-6 | MEDIUM-HIGH |
+| **Phase 6** | Documentation & Compliance Mapping | Week 6-7 | MEDIUM |
+| **Phase 7** | Commercial Readiness<br>(demo UI, validation reports, services) | Week 7-8 | MEDIUM |
 
-1. Enable Horizontal Pod Autoscaler (HPA) in AKS
-2. Optimize Docker image size & cold-start time
-3. Add message queue (Azure Service Bus / RabbitMQ) for async jobs
-4. Introduce model batching to improve GPU/CPU utilization
+**Key Deliverables:**
+- JWT authentication with role-based access control
+- Comprehensive input validation with clinical constraints
+- Structured logging with PHI-safe audit trails
+- >80% test coverage (unit, integration, security tests)
+- SBOM generation and vulnerability scanning
+- FDA-ready compliance documentation
+- Professional demo UI and service packages
 
-🔹 Phase 5 — Modular Architecture Alignment:
+**Impact:** [5/5] Regulatory compliance | [5/5] Commercial readiness
 
-1. Define explicit API contracts with OpenAPI schemas
-2. Split backend into micro-modules (auth, inference, analytics, storage)
-3. Adopt Domain-Driven Design (DDD) for service boundaries
-4. Introduce versioned API gateway for modular releases
+---
 
-🔹 Phase 6 — Advanced Security & Compliance Automation:
+### Track 2: Performance & Scalability (Phase 2-6)
+**Priority: MEDIUM-HIGH** — Operational excellence and production readiness
 
-1. Integrate SBOM + Trivy vulnerability scanning
-2. Add secret scanning (Gitleaks) in CI/CD
-3. Automate traceability matrix updates via scripts
-4. Sign & attest containers (Cosign / Sigstore)
+| Phase | Focus Area | Timeline | Priority |
+|-------|------------|----------|----------|
+| **Phase 2** | Performance & Latency Optimization | Week 2-3 | MEDIUM-HIGH |
+| **Phase 3** | Reliability & Observability | Week 3-4 | MEDIUM-HIGH |
+| **Phase 4** | Scalability & Resource Optimization | Week 4-5 | MEDIUM |
+| **Phase 5** | Modular Architecture Alignment | Week 5-6 | MEDIUM |
+| **Phase 6** | Advanced Security & Compliance Automation | Week 6-7 | MEDIUM |
+
+**Key Deliverables:**
+- Async FastAPI routes with optimized I/O
+- Caching layer (Redis/LRU) for repeat inference
+- OpenTelemetry tracing & Prometheus/Grafana dashboards
+- Horizontal Pod Autoscaler (HPA) in AKS
+- Message queue (Azure Service Bus/RabbitMQ) for async jobs
+- Micro-modules architecture with DDD
+- Container signing & attestation (Cosign/Sigstore)
+
+**Impact:** [4/5] Performance | [4/5] Scalability | [3/5] Reliability
 
 **License**
 This project will be released under the MIT License (LICENSE file to be added in the next update).

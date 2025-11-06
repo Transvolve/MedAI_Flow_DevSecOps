@@ -26,18 +26,18 @@ def test_version_endpoint():
 
 
 def test_infer_requires_auth():
-    r = client.get("/infer")
+    r = client.post("/infer", json={"data": [0.0, 1.0]})
     assert r.status_code in (401, 403)
 
 
 def test_infer_with_token():
     headers = {"Authorization": "Bearer test-token"}
-    r = client.get("/infer", headers=headers)
+    r = client.post("/infer", headers=headers, json={"data": [0.0, 1.0]})
     assert r.status_code == 200
     body = r.json()
     # latency_timer wraps the result
     assert "latency_ms" in body
     assert "result" in body
-    assert body["result"]["message"] == "Model inference endpoint ready."
+    assert "outputs" in body["result"] or "message" in body["result"]
 
 
