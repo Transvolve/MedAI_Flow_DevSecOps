@@ -55,9 +55,7 @@ class SecureRedisConnection:
         params = {
             "decode_responses": True,
             "max_connections": self.pool_size,
-            "socket_timeout": self.timeout,
-            "retry_on_timeout": self.retry_on_timeout,
-            "retry_on_errors": self.retry_on_error
+            "socket_timeout": self.timeout
         }
 
         if self.password:
