@@ -166,47 +166,17 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-buildx-
 
-      # Ensure buildx is available and create a builder that supports cache export/import
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+      - name: Build and push image with build-push-action
+        uses: docker/build-push-action@v4
         with:
-          install: true
-          driver-opts: |
-            image=moby/buildkit:master
-          use: true
-
-      - name: Build and Push Docker Image
-        working-directory: backend
-        env:
-          ACR_NAME: ${{ secrets.ACR_NAME }}
-        run: |
-          ACR="${ACR_NAME}.azurecr.io"
-          IMAGE_NAME="medai_flow_backend"
-          TAG="${{ github.run_number }}"
-
-          echo "🔹 Building ${ACR}/${IMAGE_NAME}:${TAG} and latest ..."
-          # Use buildx build. Omit cache export flags on runners to avoid
-          # "Cache export is not supported for the docker driver" errors.
-          # This keeps build reliable on GitHub-hosted runners. If you want
-          # build cache, consider using `docker/build-push-action` with
-          # GitHub Actions cache or registry cache configured.
-          DOCKER_BUILDKIT=1 docker buildx build \
-            --load \
-            -t "${ACR}/${IMAGE_NAME}:${TAG}" \
-            -t "${ACR}/${IMAGE_NAME}:latest" .
-          rm -rf /tmp/.buildx-cache && mv /tmp/.buildx-cache-new /tmp/.buildx-cache
-
-          if [ "${{ github.event_name }}" != "pull_request" ]; then
-            echo "🔹 Pushing ${ACR}/${IMAGE_NAME}:${TAG} and latest ..."
-            docker push "${ACR}/${IMAGE_NAME}:${TAG}"
-            docker push "${ACR}/${IMAGE_NAME}:latest"
-          else
-            echo "Skipping push on pull_request"
-          fi
-
-          # Move new cache into place for next runs
-          rm -rf /tmp/.buildx-cache
-          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+          context: ./backend
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: |
+            ${{ secrets.ACR_NAME }}.azurecr.io/medai_flow_backend:${{ github.run_number }}
+            ${{ secrets.ACR_NAME }}.azurecr.io/medai_flow_backend:latest
+          # Use the default builder; do not attempt local cache export on runners
+          # To enable caching across runs, consider using `cache-to=type=gha` with
+          # `cache-from=type=gha` and the action's cache feature.
 
   # ---------------------------
   # AKS Deployment
