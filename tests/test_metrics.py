@@ -21,7 +21,7 @@ from backend.app.metrics import (
     track_redis_operation,
     set_redis_connected
 )
-from ..app.redis_security import get_secure_redis_client
+from backend.app.redis_security import get_secure_redis_client
 
 @pytest.fixture
 def test_client():

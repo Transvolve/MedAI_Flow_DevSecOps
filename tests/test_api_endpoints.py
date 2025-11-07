@@ -1,10 +1,12 @@
-import os
 import sys
+from pathlib import Path
 from fastapi.testclient import TestClient
 
+# Add backend directory to Python path
+backend_dir = Path(__file__).parent.parent
+sys.path.append(str(backend_dir))
 
-sys.path.append(os.path.abspath("backend"))
-from app.main import app  # noqa: E402
+from backend.app.main import app  # noqa: E402
 
 
 client = TestClient(app)
