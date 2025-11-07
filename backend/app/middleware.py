@@ -9,16 +9,14 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 from starlette.middleware import Middleware
 from starlette.middleware.cors import CORSMiddleware
 from starlette.types import ASGIApp
-from secure.headers import Security  # for secure>=0.3.0 compatibility
 from .config import settings
 from .rate_limit import RedisLimiter
 import logging
 
 logger = logging.getLogger(__name__)
 
-# Initialize security configuration with secure headers
-security = Security()
-security.headers = {
+# Define security headers
+SECURITY_HEADERS = {
     'Server': 'FastAPI',  # Remove the Server header
     'X-Frame-Options': 'DENY',  # XFO
     'X-XSS-Protection': '1; mode=block',  # XXP
@@ -83,7 +81,7 @@ def setup_middleware(app: FastAPI) -> None:
         response = await call_next(request)
 
         # Add security headers
-        for header, value in security.headers.items():
+        for header, value in SECURITY_HEADERS.items():
             response.headers[header] = value
 
         # Add timing and tracking headers
