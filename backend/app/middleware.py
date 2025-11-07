@@ -28,11 +28,7 @@ security.headers = {
     'Referrer-Policy': 'no-referrer',
     'Cache-Control': 'no-store',
     'Permissions-Policy': 'accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()'
-},
-        'payment': '()',
-        'usb': '()'
-    }
-)
+}
 
 def setup_middleware(app: FastAPI) -> None:
     """Configure all middleware for the application."""
