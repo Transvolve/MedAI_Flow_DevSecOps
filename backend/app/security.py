@@ -24,15 +24,46 @@ class User(BaseModel):
     disabled: Optional[bool] = None
 
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
+def truncate_bytes(data: bytes) -> bytes:
+    """Truncate bytes to 72 bytes, the maximum allowed by bcrypt."""
+    return data[:72]
+
+
+def truncate_password(password: str) -> str:
+    """
+    Truncate a password to 72 bytes for bcrypt.
+    Returns a UTF-8 string representation of the truncated bytes.
+    """
+    try:
+        if isinstance(password, str):
+            pass_bytes = password.encode('utf-8')
+        else:
+            pass_bytes = str(password).encode('utf-8')
+        return pass_bytes[:72].decode('utf-8')
+    except Exception as e:
+        print(f"Error in truncate_password: {e}")
+        return str(password)[:72]
+
+
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return pwd_context.verify(plain_password, hashed_password)
+    """Verify a password against a hash."""
+    try:
+        print(f"Attempting to verify password: {plain_password}")
+        print(f"Against hash: {hashed_password}")
+        result = pwd_context.verify(plain_password, hashed_password)
+        print(f"Password verification result: {result}")
+        return result
+    except Exception as e:
+        print(f"Password verification error: {e}")
+        return False
 
 
 def get_password_hash(password: str) -> str:
+    """Generate a password hash."""
     return pwd_context.hash(password)
 
 

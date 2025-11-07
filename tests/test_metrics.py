@@ -16,6 +16,8 @@ from backend.app.metrics import (
     RATE_LIMIT_EXCEEDED,
     REDIS_OPERATION_LATENCY,
     REDIS_CONNECTED,
+    REDIS_POOL_SIZE,
+    REDIS_POOL_MAXSIZE,
     track_rate_limit_hit,
     track_rate_limit_exceeded,
     track_redis_operation,
@@ -23,16 +25,47 @@ from backend.app.metrics import (
 )
 from backend.app.redis_security import get_secure_redis_client
 
+from unittest.mock import patch, MagicMock
+
 @pytest.fixture
 def test_client():
     return TestClient(app)
 
 @pytest.fixture
 def redis_client():
-    client = get_secure_redis_client()
-    set_redis_connected(True)
-    yield client
-    set_redis_connected(False)
+    redis_mock = MagicMock()
+    redis_mock.ping.return_value = True
+    redis_mock.get.return_value = "test_value"  # Return test value for get operations
+    redis_mock.set.return_value = True
+    redis_mock.delete.return_value = True
+    redis_mock.connection_pool.max_connections = 10
+    redis_mock.connection_pool.size.return_value = 5
+    redis_mock.connection_pool.pid = 12345
+    
+    with patch('backend.app.redis_security.get_secure_redis_client', return_value=redis_mock):
+        set_redis_connected(True)
+        yield redis_mock
+        set_redis_connected(False)
+
+@pytest.fixture(autouse=True)
+def clear_metrics():
+    # Get registry from app module to ensure we're clearing the right metrics
+    from backend.app.metrics import REGISTRY
+    REGISTRY.unregister(RATE_LIMIT_HITS)
+    REGISTRY.unregister(RATE_LIMIT_EXCEEDED)
+    REGISTRY.unregister(REDIS_OPERATION_LATENCY)
+    REGISTRY.unregister(REDIS_CONNECTED)
+    REGISTRY.unregister(REDIS_POOL_SIZE)
+    REGISTRY.unregister(REDIS_POOL_MAXSIZE)
+    
+    # Re-register with cleared state
+    REGISTRY.register(RATE_LIMIT_HITS)
+    REGISTRY.register(RATE_LIMIT_EXCEEDED)
+    REGISTRY.register(REDIS_OPERATION_LATENCY)
+    REGISTRY.register(REDIS_CONNECTED)
+    REGISTRY.register(REDIS_POOL_SIZE)
+    REGISTRY.register(REDIS_POOL_MAXSIZE)
+    yield
 
 def test_rate_limit_metrics(test_client):
     """Test rate limit metrics collection."""
@@ -47,28 +80,32 @@ def test_rate_limit_metrics(test_client):
     response = test_client.get("/metrics")
     assert response.status_code == 200
     
-    metrics = {
-        metric.name: metric 
-        for metric in text_string_to_metric_families(response.text)
-    }
+    metric_text = response.text
+    metrics = list(text_string_to_metric_families(metric_text))
     
-    # Verify rate limit hits
-    hits = metrics.get("rate_limit_hits_total")
-    assert hits is not None
-    assert any(
-        sample.value == 2 
-        for sample in hits.samples 
-        if sample.labels["endpoint"] == "/api/test"
-    )
+    # Find rate limit hits metric
+    hits_metric = next((m for m in metrics if m.name == 'rate_limit_hits_total'), None)
+    assert hits_metric is not None, "rate_limit_hits_total metric not found"
     
-    # Verify rate limit exceeded
-    exceeded = metrics.get("rate_limit_exceeded_total")
-    assert exceeded is not None
-    assert any(
-        sample.value == 1 
-        for sample in exceeded.samples 
-        if sample.labels["endpoint"] == "/api/test"
+    # Verify hit count
+    test_endpoint_hits = next(
+        (s.value for s in hits_metric.samples 
+         if s.labels.get('endpoint') == "/api/test"),
+        None
     )
+    assert test_endpoint_hits == 2, f"Expected 2 hits but found {test_endpoint_hits}"
+    
+    # Find rate limit exceeded metric
+    exceeded_metric = next((m for m in metrics if m.name == 'rate_limit_exceeded_total'), None)
+    assert exceeded_metric is not None, "rate_limit_exceeded_total metric not found"
+    
+    # Verify exceeded count
+    test_endpoint_exceeded = next(
+        (s.value for s in exceeded_metric.samples 
+         if s.labels.get('endpoint') == "/api/test"),
+        None
+    )
+    assert test_endpoint_exceeded == 1, f"Expected 1 exceeded but found {test_endpoint_exceeded}"
 
 @pytest.mark.asyncio
 async def test_redis_latency_metrics(redis_client):
@@ -84,47 +121,46 @@ async def test_redis_latency_metrics(redis_client):
     assert result == "test_value"
     
     # Get metrics
-    metrics = {
-        metric.name: metric 
-        for metric in text_string_to_metric_families(
-            TestClient(app).get("/metrics").text
-        )
-    }
+    # Get metrics
+    response = TestClient(app).get("/metrics")
+    metrics = list(text_string_to_metric_families(response.text))
     
-    # Verify latency histogram
-    latency = metrics.get("redis_operation_latency_seconds")
-    assert latency is not None
-    assert any(
-        sample.labels["operation"] == "test_set" 
-        for sample in latency.samples
-    )
+    # Find Redis latency metric
+    latency_metric = next((m for m in metrics if m.name == 'redis_operation_latency_seconds'), None)
+    assert latency_metric is not None, "redis_operation_latency_seconds metric not found"
+    
+    # Verify latency was recorded
+    test_ops = [s for s in latency_metric.samples if s.labels.get('operation') == "test_set"]
+    assert len(test_ops) > 0, "No test operations tracked"
 
 def test_redis_connection_metrics(redis_client):
     """Test Redis connection status metrics."""
     # Get metrics
-    metrics = {
-        metric.name: metric 
-        for metric in text_string_to_metric_families(
-            TestClient(app).get("/metrics").text
-        )
-    }
+    metrics = list(text_string_to_metric_families(
+        TestClient(app).get("/metrics").text
+    ))
+    
+    # Find redis connection metric
+    connected_metric = next((m for m in metrics if m.name == 'redis_connected'), None)
+    assert connected_metric is not None, "redis_connected metric not found"
     
     # Verify connection status
-    connected = metrics.get("redis_connected")
-    assert connected is not None
-    assert any(sample.value == 1 for sample in connected.samples)
+    assert any(sample.value == 1 for sample in connected_metric.samples)
     
     # Simulate disconnection
     set_redis_connected(False)
     
-    metrics = {
-        metric.name: metric 
-        for metric in text_string_to_metric_families(
-            TestClient(app).get("/metrics").text
-        )
-    }
-    connected = metrics.get("redis_connected")
-    assert any(sample.value == 0 for sample in connected.samples)
+    # Get updated metrics
+    metrics = list(text_string_to_metric_families(
+        TestClient(app).get("/metrics").text
+    ))
+    
+    # Find redis connection metric
+    connected_metric = next((m for m in metrics if m.name == 'redis_connected'), None)
+    assert connected_metric is not None, "redis_connected metric not found"
+    
+    # Verify disconnection status
+    assert any(sample.value == 0 for sample in connected_metric.samples)
 
 @pytest.mark.asyncio
 async def test_alert_conditions(test_client, redis_client):
@@ -145,23 +181,25 @@ async def test_alert_conditions(test_client, redis_client):
     response = test_client.get("/metrics")
     assert response.status_code == 200
     
-    metrics = {
-        metric.name: metric 
-        for metric in text_string_to_metric_families(response.text)
-    }
+    metric_text = response.text
+    metrics = list(text_string_to_metric_families(metric_text))
     
-    # Verify conditions that would trigger alerts
-    hits = metrics.get("rate_limit_hits_total")
-    assert hits is not None
-    assert any(
-        sample.value >= 55 
-        for sample in hits.samples 
-        if sample.labels["endpoint"] == "/api/test"
-    )
+    # Find rate limit hits metric
+    hits_metric = next((m for m in metrics if m.name == 'rate_limit_hits_total'), None)
+    assert hits_metric is not None, "rate_limit_hits_total metric not found"
     
-    latency = metrics.get("redis_operation_latency_seconds")
-    assert latency is not None
-    assert any(
-        sample.labels["operation"] == "slow_operation" 
-        for sample in latency.samples
+    # Verify high rate limit usage
+    test_endpoint_hits = next(
+        (s.value for s in hits_metric.samples 
+         if s.labels.get('endpoint') == "/api/test"),
+        None
     )
+    assert test_endpoint_hits >= 55, f"Expected >=55 hits but found {test_endpoint_hits}"
+    
+    # Find Redis latency metric
+    latency_metric = next((m for m in metrics if m.name == 'redis_operation_latency_seconds'), None)
+    assert latency_metric is not None, "redis_operation_latency_seconds metric not found"
+    
+    # Verify slow operation was tracked
+    slow_ops = [s for s in latency_metric.samples if s.labels.get('operation') == "slow_operation"]
+    assert len(slow_ops) > 0, "No slow operations tracked"

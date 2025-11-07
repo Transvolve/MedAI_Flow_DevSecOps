@@ -1,7 +1,7 @@
 from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
-from .security import verify_token
+from .security import get_current_user
 from .utils import latency_timer
 try:
     # Lazy import to avoid CI failures if onnxruntime is not installed
@@ -24,7 +24,7 @@ class InferenceResponse(BaseModel):
     outputs: Any
 
 
-@router.post("/infer", dependencies=[Depends(verify_token)])
+@router.post("/infer", dependencies=[Depends(get_current_user)])
 @latency_timer
 async def infer(request: InferenceRequest) -> Dict[str, Any]:
     if ml_inference is None:

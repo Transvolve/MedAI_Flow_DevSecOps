@@ -1,5 +1,5 @@
 """Prometheus metrics for rate limiting and Redis monitoring."""
-from prometheus_client import Counter, Histogram, Gauge
+from prometheus_client import Counter, Histogram, Gauge, REGISTRY
 import time
 
 # Rate limiting metrics
@@ -43,6 +43,8 @@ REDIS_POOL_MAXSIZE = Gauge(
     'redis_pool_maxsize',
     'Maximum size of the Redis connection pool'
 )
+
+    # No initialization needed with default registry
 
 def track_rate_limit_hit(endpoint: str, client_ip: str, remaining: int):
     """Track a successful rate limit check."""

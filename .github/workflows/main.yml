@@ -26,10 +26,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Python 3.11
+      - name: Set up Python 3.12
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: "3.12"
 
       # Cache pip dependencies for faster runs
       - name: Cache pip dependencies
@@ -44,7 +44,7 @@ jobs:
       - name: Install tools
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements-ci.txt
+          pip install -r requirements-ci.txt -r requirements-security.txt
 
       # ✅ Run Lint
       - name: Run Lint
@@ -87,10 +87,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Python 3.11
+      - name: Set up Python 3.12
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: "3.12"
           
       - name: Cache pip dependencies
         uses: actions/cache@v4
@@ -112,6 +112,8 @@ jobs:
           JWT_SECRET_KEY: "test_secret_key_123"
           ALGORITHM: "HS256"
           ACCESS_TOKEN_EXPIRE_MINUTES: "30"
+          ENVIRONMENT: "ci"
+          PYTHONWARNINGS: "ignore::UserWarning,ignore:PydanticDeprecatedSince20"
         run: |
           pytest tests/ -v --disable-warnings --cov=backend/app --cov-report=term-missing
 
@@ -155,6 +157,14 @@ jobs:
         run: |
           az acr login --name "$ACR_NAME" --subscription ${{ fromJson(secrets.AZURE_CREDENTIALS).subscriptionId }}
 
+      # 🧱 Cache Docker layers (inserted here)
+      - name: Cache Docker layers
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
 
       - name: Build and Push Docker Image
         working-directory: backend
@@ -166,7 +176,12 @@ jobs:
           TAG="${{ github.run_number }}"
 
           echo "🔹 Building ${ACR}/${IMAGE_NAME}:${TAG} and latest ..."
-          docker build -t "${ACR}/${IMAGE_NAME}:${TAG}" -t "${ACR}/${IMAGE_NAME}:latest" .
+          docker build \
+            --cache-from=type=local,src=/tmp/.buildx-cache \
+            --cache-to=type=local,dest=/tmp/.buildx-cache-new \
+            -t "${ACR}/${IMAGE_NAME}:${TAG}" \
+            -t "${ACR}/${IMAGE_NAME}:latest" .
+          rm -rf /tmp/.buildx-cache && mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
           if [ "${{ github.event_name }}" != "pull_request" ]; then
             echo "🔹 Pushing ${ACR}/${IMAGE_NAME}:${TAG} and latest ..."
@@ -175,6 +190,10 @@ jobs:
           else
             echo "Skipping push on pull_request"
           fi
+
+          # Move new cache into place for next runs
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
   # ---------------------------
   # AKS Deployment

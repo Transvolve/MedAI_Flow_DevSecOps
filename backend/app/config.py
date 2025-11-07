@@ -41,11 +41,11 @@ class Settings(BaseSettings):
     )    # Demo users (in production, use a database)
     users: Dict = {
         "admin": {
-            "password": "$2b$12$UD7nd1yxYGkAX1gZnOFXpOQQR0LHEHPHQysw.oqKGMGNfHjR3QKIi",  # hashed 'admin123'
+            "password": "$argon2id$v=19$m=65536,t=3,p=4$FKJUqpWy9h4jZOxdC0EI4Q$uG9gxokv2k7brFz4+ef3/yiajKW+pnJhwwSIGrGVxCw",  # argon2 hash for 'admin123'
             "role": "admin"
         },
         "user": {
-            "password": "$2b$12$H8oK2DXOx.9z4j4f1BncYubZHgc18Yr1sD7m4G4F1BQvVD3lB9pIC",  # hashed 'user123'
+            "password": "$argon2id$v=19$m=65536,t=3,p=4$EwIgJCTknPP+v/deS8k5xw$NY9THe9RspGhCkCH+NLhSn0dl3+y2Ef/MbS/djvkoVs",  # argon2 hash for 'user123'
             "role": "user"
         },
         "test": {

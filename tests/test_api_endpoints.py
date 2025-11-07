@@ -34,7 +34,7 @@ def test_infer_requires_auth():
 
 def test_infer_with_token():
     # First get a valid token
-    form_data = {"username": "test", "password": "test"}
+    form_data = {"username": "user", "password": "user123"}
     r = client.post("/token", data=form_data)
     assert r.status_code == 200
     token = r.json()["access_token"]
@@ -43,6 +43,7 @@ def test_infer_with_token():
     headers = {"Authorization": f"Bearer {token}"}
     r = client.post("/infer", headers=headers, json={"data": [0.0, 1.0]})
     assert r.status_code == 200
+    body = r.json()
     assert "latency_ms" in body
     assert "result" in body
     assert "outputs" in body["result"] or "message" in body["result"]
