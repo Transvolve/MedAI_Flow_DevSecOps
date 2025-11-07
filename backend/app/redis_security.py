@@ -42,10 +42,6 @@ class SecureRedisConnection:
         # Default retry strategy
         self.retry_on_timeout = retry_on_timeout
         self.retry_on_error = retry_on_error or []
-                "TIMEOUTCONNECTION",  # Timeout connecting
-                *(retry_on_error or [])
-            }
-        )
 
         # SSL context if enabled
         self.ssl_context = None
