@@ -23,11 +23,21 @@ security.headers = {
     'X-XSS-Protection': '1; mode=block',
     'X-Content-Type-Options': 'nosniff',
     'Strict-Transport-Security': 'max-age=31536000; includeSubDomains; preload',
-    'Content-Security-Policy': "default-src 'self'; img-src 'self' data: https:; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; frame-ancestors 'none'",
+    'Content-Security-Policy': (
+        "default-src 'self'; "
+        "img-src 'self' data: https:; "
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval'; "
+        "style-src 'self' 'unsafe-inline'; "
+        "frame-ancestors 'none'"
+    ),
     'X-Permitted-Cross-Domain-Policies': 'none',
     'Referrer-Policy': 'no-referrer',
     'Cache-Control': 'no-store',
-    'Permissions-Policy': 'accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()'
+    'Permissions-Policy': (
+        'accelerometer=(), camera=(), geolocation=(), '
+        'gyroscope=(), magnetometer=(), microphone=(), '
+        'payment=(), usb=()'
+    )
 }
 
 def setup_middleware(app: FastAPI) -> None:
