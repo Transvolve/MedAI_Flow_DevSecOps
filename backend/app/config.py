@@ -38,18 +38,22 @@ class Settings(BaseSettings):
     redis_password: Optional[str] = Field(
         default=None,
         description="Redis password for authentication"
-    )    # Demo users (in production, use a database)
+    )
+    # Demo users (in production, use a database)
     users: Dict = {
         "admin": {
-            "password": "$argon2id$v=19$m=65536,t=3,p=4$FKJUqpWy9h4jZOxdC0EI4Q$uG9gxokv2k7brFz4+ef3/yiajKW+pnJhwwSIGrGVxCw",  # argon2 hash for 'admin123'
+            "password": "$argon2id$v=19$m=65536,t=3,p=4$FKJUqpWy9h4jZOxdC"
+            "0EI4Q$uG9gxokv2k7brFz4+ef3/yiajKW+pnJhwwSIGrGVxCw",
             "role": "admin"
         },
         "user": {
-            "password": "$argon2id$v=19$m=65536,t=3,p=4$EwIgJCTknPP+v/deS8k5xw$NY9THe9RspGhCkCH+NLhSn0dl3+y2Ef/MbS/djvkoVs",  # argon2 hash for 'user123'
+            "password": "$argon2id$v=19$m=65536,t=3,p=4$EwIgJCTknPP+v/deS8"
+            "k5xw$NY9THe9RspGhCkCH+NLhSn0dl3+y2Ef/MbS/djvkoVs",
             "role": "user"
         },
         "test": {
-            "password": "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW",  # hashed 'test'
+            "password": "$2b$12$EixZaYVK1fsbw1ZfbX3OX"
+            "ePaWxn96p36WQoeG6Lruj3vjPGga31lW",
             "role": "user"
         }
     }
