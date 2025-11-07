@@ -1,0 +1,47 @@
+groups:
+- name: RateLimitAlerts
+  rules:
+  - alert: HighRateLimitUsage
+    expr: rate(rate_limit_hits_total[5m]) > 0.9
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: High rate limit usage
+      description: Rate limit usage is above 90% for {{ $labels.endpoint }}
+
+  - alert: RateLimitExceeded
+    expr: rate(rate_limit_exceeded_total[5m]) > 0
+    for: 1m
+    labels:
+      severity: warning
+    annotations:
+      summary: Rate limits being exceeded
+      description: Rate limits are being exceeded for {{ $labels.endpoint }}
+
+  - alert: RedisConnectionLost
+    expr: redis_connected == 0
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: Redis connection lost
+      description: Redis connection has been lost
+
+  - alert: HighRedisLatency
+    expr: histogram_quantile(0.95, redis_operation_latency_seconds_bucket) > 0.1
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: High Redis latency
+      description: 95th percentile of Redis operations is taking >100ms
+
+  - alert: RedisPoolExhausted
+    expr: redis_pool_size >= redis_pool_maxsize
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: Redis connection pool exhausted
+      description: Redis connection pool is at maximum capacity

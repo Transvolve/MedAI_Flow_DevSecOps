@@ -232,6 +232,9 @@ Secrets handled via GitHub Secrets and Azure Key Vault.
 * Environment variables and secrets are managed via GitHub Secrets and Azure Key Vault.
 * Security scanning (bandit, flake8) is integrated into the CI/CD pipeline.
 * Project artifacts follow IEC 62304 lifecycle and ISO 27001 security controls templates.
+* Distributed rate limiting with Redis backend ([Rate Limiting Documentation](docs/RATE_LIMITING.md))
+* JWT-based authentication with role-based access control
+* Security headers (CSP, HSTS) and CORS protection
 
 **Security & Compliance Highlights**
 
