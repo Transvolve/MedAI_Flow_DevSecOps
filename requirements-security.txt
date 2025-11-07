@@ -2,3 +2,5 @@ python-jose[cryptography]>=3.3.0  # For JWT handling
 passlib[bcrypt]>=1.7.4  # For password hashing
 slowapi>=0.1.8  # For rate limiting
 secure>=0.3.0  # For security headers
+argon2-cffi>=23.1.0
+argon2-cffi>=23.1.0
