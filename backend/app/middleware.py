@@ -9,25 +9,26 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 from starlette.middleware import Middleware
 from starlette.middleware.cors import CORSMiddleware
 from starlette.types import ASGIApp
-from secure.headers import SecureHeaders
+from secure import Security
 from .config import settings
 from .rate_limit import RedisLimiter
 import logging
 
 logger = logging.getLogger(__name__)
 
-# Initialize secure headers
-secure_headers = SecureHeaders(
-    csp={
-        'default-src': "'self'",
-        'img-src': "'self' data: https:",
-        'script-src': "'self' 'unsafe-inline' 'unsafe-eval'",
-        'style-src': "'self' 'unsafe-inline'",
-        'frame-ancestors': "'none'",
-    },
-    hsts={
-        'max-age': 31536000,
-        'include_subdomains': True,
+# Initialize security configuration with secure headers
+security = Security()
+security.headers = {
+    'X-Frame-Options': 'DENY',
+    'X-XSS-Protection': '1; mode=block',
+    'X-Content-Type-Options': 'nosniff',
+    'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
+    'Content-Security-Policy': "default-src 'self'; img-src 'self' data: https:; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; frame-ancestors 'none'",
+    'X-Permitted-Cross-Domain-Policies': 'none',
+    'Referrer-Policy': 'no-referrer',
+    'Cache-Control': 'no-store',
+    'Permissions-Policy': 'accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()'
+}
         'preload': True
     },
     permissions_policy={
@@ -85,7 +86,8 @@ def setup_middleware(app: FastAPI) -> None:
         response = await call_next(request)
 
         # Add security headers
-        secure_headers.fastapi(response)
+        for header, value in security.headers.items():
+            response.headers[header] = value
 
         # Add timing and tracking headers
         duration = time.time() - start_time
