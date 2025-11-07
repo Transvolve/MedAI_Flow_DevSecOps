@@ -8,7 +8,7 @@ passlib[bcrypt]==1.7.4  # Secure password hashing with bcrypt
 slowapi==0.1.8  # Basic rate limiting functionality
 
 # Security headers - minimal install
-secure==0.3.0  # CSP, HSTS, and security headers
+secure>=0.3.1  # Required for security headers module
 
 # Redis backend for distributed rate limiting
 redis==5.0.1  # Required for distributed rate limiting

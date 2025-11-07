@@ -9,7 +9,7 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 from starlette.middleware import Middleware
 from starlette.middleware.cors import CORSMiddleware
 from starlette.types import ASGIApp
-from secure import SecureHeaders
+from secure.headers import Security  # for secure>=0.3.0 compatibility
 from .config import settings
 from .rate_limit import RedisLimiter
 import logging
@@ -17,32 +17,28 @@ import logging
 logger = logging.getLogger(__name__)
 
 # Initialize security configuration with secure headers
-secure_headers = SecureHeaders(
-    server="FastAPI",  # Remove the Server header
-    hsts=True,  # Enable HSTS
-    xfo="DENY",  # X-Frame-Options
-    xxp=True,  # X-XSS-Protection
-    cto="nosniff",  # X-Content-Type-Options
-    referrer="no-referrer",  # Referrer-Policy
-    cache=False,  # Cache-Control
-    csp={  # Content-Security-Policy
-        'default-src': "'self'",
-        'img-src': ["'self'", "data:", "https:"],
-        'script-src': ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
-        'style-src': ["'self'", "'unsafe-inline'"],
-        'frame-ancestors': "'none'"
-    },
-    permissions={  # Permissions-Policy
-        'accelerometer': [],
-        'camera': [],
-        'geolocation': [],
-        'gyroscope': [],
-        'magnetometer': [],
-        'microphone': [],
-        'payment': [],
-        'usb': []
-    }
-)
+security = Security()
+security.headers = {
+    'Server': 'FastAPI',  # Remove the Server header
+    'X-Frame-Options': 'DENY',  # XFO
+    'X-XSS-Protection': '1; mode=block',  # XXP
+    'X-Content-Type-Options': 'nosniff',  # CTO
+    'Referrer-Policy': 'no-referrer',  # Referrer
+    'Cache-Control': 'no-store',  # Cache
+    'Strict-Transport-Security': 'max-age=31536000; includeSubDomains; preload',  # HSTS
+    'Content-Security-Policy': (
+        "default-src 'self'; "
+        "img-src 'self' data: https:; "
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval'; "
+        "style-src 'self' 'unsafe-inline'; "
+        "frame-ancestors 'none'"
+    ),
+    'Permissions-Policy': (
+        'accelerometer=(), camera=(), geolocation=(), '
+        'gyroscope=(), magnetometer=(), microphone=(), '
+        'payment=(), usb=()'
+    )
+}
 
 def setup_middleware(app: FastAPI) -> None:
     """Configure all middleware for the application."""
@@ -86,8 +82,9 @@ def setup_middleware(app: FastAPI) -> None:
 
         response = await call_next(request)
 
-        # Add security headers using SecureHeaders instance
-        response = secure_headers.fastapi(response)
+        # Add security headers
+        for header, value in security.headers.items():
+            response.headers[header] = value
 
         # Add timing and tracking headers
         duration = time.time() - start_time
