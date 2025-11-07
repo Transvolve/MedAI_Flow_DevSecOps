@@ -166,6 +166,15 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-buildx-
 
+      # Ensure buildx is available and create a builder that supports cache export/import
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          install: true
+          driver-opts: |
+            image=moby/buildkit:master
+          use: true
+
       - name: Build and Push Docker Image
         working-directory: backend
         env:
@@ -176,9 +185,11 @@ jobs:
           TAG="${{ github.run_number }}"
 
           echo "🔹 Building ${ACR}/${IMAGE_NAME}:${TAG} and latest ..."
-          docker build \
+          # Use buildx build so cache export (--cache-to) is supported on runners
+          DOCKER_BUILDKIT=1 docker buildx build \
             --cache-from=type=local,src=/tmp/.buildx-cache \
-            --cache-to=type=local,dest=/tmp/.buildx-cache-new \
+            --cache-to=type=local,dest=/tmp/.buildx-cache-new,mode=max \
+            --load \
             -t "${ACR}/${IMAGE_NAME}:${TAG}" \
             -t "${ACR}/${IMAGE_NAME}:latest" .
           rm -rf /tmp/.buildx-cache && mv /tmp/.buildx-cache-new /tmp/.buildx-cache
