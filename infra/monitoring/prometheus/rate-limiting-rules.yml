@@ -6,9 +6,16 @@ groups:
     for: 5m
     labels:
       severity: warning
+      team: security
     annotations:
       summary: High rate limit usage
       description: Rate limit usage is above 90% for {{ $labels.endpoint }}
+      runbook_url: https://github.com/Transvolve/MedAI_Flow_DevSecOps/docs/runbooks/high-rate-limit.md
+      recovery_steps: |
+        1. Check client IPs with highest request rates
+        2. Verify if legitimate traffic or potential abuse
+        3. Adjust rate limits if needed
+        4. Consider IP allowlisting for trusted clients
 
   - alert: RateLimitExceeded
     expr: rate(rate_limit_exceeded_total[5m]) > 0
