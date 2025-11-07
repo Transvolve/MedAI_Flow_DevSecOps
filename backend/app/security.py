@@ -83,3 +83,16 @@ def requires_role(allowed_roles: list[str]):
             )
         return current_user
     return role_checker
+
+
+def verify_token(token: str) -> Dict:
+    """Verify a JWT token and return its payload."""
+    try:
+        payload = jwt.decode(token, settings.jwt_secret_key, algorithms=[settings.jwt_algorithm])
+        return payload
+    except JWTError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Could not validate token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
