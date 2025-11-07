@@ -11,3 +11,4 @@ def latency_timer(func: Callable[..., Awaitable[Any]]) -> Callable[..., Coroutin
         elapsed = round((time.time() - start) * 1000, 3)
         return {"result": result, "latency_ms": elapsed}
     return wrapper
+

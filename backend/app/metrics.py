@@ -64,7 +64,7 @@ def track_redis_operation(operation_name: str):
                     time.time() - start_time
                 )
                 return result
-            except Exception as e:
+            except Exception:
                 # Track failed operations with -1 latency
                 REDIS_OPERATION_LATENCY.labels(operation=operation_name).observe(-1)
                 raise
@@ -79,3 +79,4 @@ def update_redis_pool_metrics(pool_size: int, max_size: int):
 def set_redis_connected(connected: bool):
     """Update Redis connection status."""
     REDIS_CONNECTED.set(1 if connected else 0)
+

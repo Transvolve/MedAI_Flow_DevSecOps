@@ -5,7 +5,6 @@ from fastapi import FastAPI, Request, Response
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 from slowapi.util import get_remote_address
-from slowapi.errors import RateLimitExceeded
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from starlette.middleware import Middleware
 from starlette.middleware.cors import CORSMiddleware
@@ -55,19 +54,19 @@ def setup_middleware(app: FastAPI) -> None:
             redis_pool_size=settings.redis_pool_size,
             redis_timeout=settings.redis_timeout
         )
-        
+
         # Register rate limit error handler
         app.state.limiter = limiter
         app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
-        
+
         # Add slowapi middleware for rate limiting
         app.add_middleware(SlowAPIMiddleware)
-        
+
         logger.info("Rate limiting middleware initialized successfully")
     except Exception as e:
         logger.error(f"Failed to initialize rate limiting: {str(e)}")
         raise
-    
+
     # Add CORS middleware
     app.add_middleware(
         CORSMiddleware,
@@ -76,22 +75,23 @@ def setup_middleware(app: FastAPI) -> None:
         allow_methods=settings.cors_methods,
         allow_headers=settings.cors_headers,
     )
-    
+
     @app.middleware("http")
     async def add_security_headers(request: Request, call_next: Callable):
         """Add security headers and request tracking."""
         request_id = str(uuid.uuid4())
         start_time = time.time()
-        
+
         response = await call_next(request)
-        
+
         # Add security headers
         secure_headers.fastapi(response)
-        
+
         # Add timing and tracking headers
         duration = time.time() - start_time
         response.headers["X-Request-ID"] = request_id
         response.headers["X-Process-Time"] = str(round(duration, 4))
-        
+
         # Rate limit headers are automatically added by SlowAPIMiddleware
         return response
+

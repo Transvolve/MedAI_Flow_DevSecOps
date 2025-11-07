@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 class RedisLimiter(Limiter):
     """Extended Limiter with Redis backend support."""
-    
+
     def __init__(
         self,
         key_func,
@@ -26,7 +26,7 @@ class RedisLimiter(Limiter):
         redis_timeout: int = 5
     ):
         """Initialize Redis-backed rate limiter.
-        
+
         Args:
             key_func: Function to extract key from request
             redis_url: Redis connection URL (redis://host:port)
@@ -43,7 +43,7 @@ class RedisLimiter(Limiter):
             strategy=strategy,
             headers_enabled=headers_enabled
         )
-        
+
         try:
             self.redis = Redis.from_url(
                 redis_url,
@@ -63,7 +63,7 @@ class RedisLimiter(Limiter):
 
     def hit(self, key: str, limit: int, period: timedelta) -> tuple[bool, int]:
         """Record a hit and check the limit.
-        
+
         Args:
             key: Rate limit key
             limit: Maximum number of requests
@@ -74,19 +74,20 @@ class RedisLimiter(Limiter):
         """
         redis_key = self.get_redis_key(key)
         pipe = self.redis.pipeline()
-        
+
         try:
             # Increment counter and set expiry
             pipe.incr(redis_key)
             pipe.expire(redis_key, int(period.total_seconds()))
             current = pipe.execute()[0]
-            
+
             # Check if limit exceeded
             is_allowed = current <= limit
             remaining = max(0, limit - current)
-            
+
             return is_allowed, remaining
         except Exception as e:
             logger.error(f"Redis operation failed: {str(e)}")
             # Fail open if Redis is down
             return True, limit
+

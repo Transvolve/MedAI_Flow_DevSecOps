@@ -38,3 +38,4 @@ async def infer(request: InferenceRequest) -> Dict[str, Any]:
         return {"outputs": outputs}
     except Exception as exc:  # pragma: no cover - defensive
         raise HTTPException(status_code=500, detail=f"Inference failed: {exc}")
+

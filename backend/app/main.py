@@ -54,13 +54,13 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    
+
     access_token_expires = timedelta(minutes=settings.access_token_expire_minutes)
     access_token = create_access_token(
         data={"sub": form_data.username, "role": user_data["role"]},
         expires_delta=access_token_expires
     )
-    
+
     logger.info(f"User {form_data.username} logged in successfully")
     return {"access_token": access_token, "token_type": "bearer"}
 
@@ -81,3 +81,4 @@ async def get_version() -> dict:
 async def read_users_me(current_user: User = Depends(get_current_user)):
     """Get current user info."""
     return current_user
+

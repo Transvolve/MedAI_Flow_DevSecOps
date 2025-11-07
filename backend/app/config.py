@@ -8,16 +8,16 @@ import secrets
 class Settings(BaseSettings):
     app_name: str = Field(default="MedAI Flow Backend")
     app_version: str = Field(default="1.0")
-    
+
     # Security Settings
     jwt_secret_key: str = Field(default_factory=lambda: secrets.token_urlsafe(32))
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 30
-    
+
     # Rate Limiting
     rate_limit_per_minute: int = 60
     rate_limit_burst: int = 5
-    
+
     # Redis Configuration
     redis_url: str = Field(
         default="redis://localhost:6379/0",
@@ -49,12 +49,12 @@ class Settings(BaseSettings):
             "role": "user"
         }
     }
-    
+
     # CORS Settings
     cors_origins: list[str] = ["http://localhost:3000", "https://app.medaiflow.com"]
     cors_methods: list[str] = ["*"]
     cors_headers: list[str] = ["*"]
-    
+
     # Response Rate Limits (bytes/second)
     max_response_rate: int = 1_000_000  # 1MB/s
 
@@ -64,5 +64,4 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
-
 
