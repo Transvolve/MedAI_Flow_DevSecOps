@@ -40,14 +40,8 @@ class SecureRedisConnection:
         self.timeout = timeout
 
         # Default retry strategy
-        self.retry_strategy = Retry(
-            backoff=1.5,  # Exponential backoff multiplier
-            retries=3,    # Maximum retries
-            supported_errors={
-                "READONLY",           # Replica is read-only
-                "CLUSTERDOWN",        # Cluster is down
-                "TRYAGAIN",          # Redis is busy
-                "CONNECTIONERROR",    # Connection issues
+        self.retry_on_timeout = retry_on_timeout
+        self.retry_on_error = retry_on_error or []
                 "TIMEOUTCONNECTION",  # Timeout connecting
                 *(retry_on_error or [])
             }
@@ -66,8 +60,8 @@ class SecureRedisConnection:
             "decode_responses": True,
             "max_connections": self.pool_size,
             "socket_timeout": self.timeout,
-            "retry_on_timeout": True,
-            "retry": self.retry_strategy,
+            "retry_on_timeout": self.retry_on_timeout,
+            "retry_on_errors": self.retry_on_error
         }
 
         if self.password:

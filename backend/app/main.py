@@ -27,7 +27,10 @@ app = FastAPI(
     openapi_url="/api/openapi.json"
 )
 
-# Register routes
+# Setup routes and middleware
+setup_middleware(app)
+
+# Register main API routes
 app.include_router(
     router,
     prefix="/api/v1",
@@ -35,7 +38,23 @@ app.include_router(
     dependencies=[Depends(get_current_user)]
 )
 
-setup_middleware(app)
+# Register metrics endpoint
+@app.get("/metrics")
+async def get_metrics():
+    """Get Prometheus metrics."""
+    from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
+    from fastapi.responses import Response
+    return Response(
+        content=generate_latest(),
+        media_type=CONTENT_TYPE_LATEST
+    )
+
+# Register infer endpoint
+@app.post("/infer", dependencies=[Depends(get_current_user)])
+async def infer(data: dict):
+    """Model inference endpoint."""
+    # TODO: Implement model inference
+    return {"result": None}
 
 
 @app.post("/token", response_model=Token)
