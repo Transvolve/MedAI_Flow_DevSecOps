@@ -44,7 +44,7 @@ REDIS_POOL_MAXSIZE = Gauge(
     'Maximum size of the Redis connection pool'
 )
 
-    # No initialization needed with default registry
+# No initialization needed with default registry
 
 def track_rate_limit_hit(endpoint: str, client_ip: str, remaining: int):
     """Track a successful rate limit check."""
