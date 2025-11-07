@@ -185,10 +185,12 @@ jobs:
           TAG="${{ github.run_number }}"
 
           echo "🔹 Building ${ACR}/${IMAGE_NAME}:${TAG} and latest ..."
-          # Use buildx build so cache export (--cache-to) is supported on runners
+          # Use buildx build. Omit cache export flags on runners to avoid
+          # "Cache export is not supported for the docker driver" errors.
+          # This keeps build reliable on GitHub-hosted runners. If you want
+          # build cache, consider using `docker/build-push-action` with
+          # GitHub Actions cache or registry cache configured.
           DOCKER_BUILDKIT=1 docker buildx build \
-            --cache-from=type=local,src=/tmp/.buildx-cache \
-            --cache-to=type=local,dest=/tmp/.buildx-cache-new,mode=max \
             --load \
             -t "${ACR}/${IMAGE_NAME}:${TAG}" \
             -t "${ACR}/${IMAGE_NAME}:latest" .
