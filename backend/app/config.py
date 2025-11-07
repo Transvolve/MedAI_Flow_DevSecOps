@@ -47,6 +47,10 @@ class Settings(BaseSettings):
         "user": {
             "password": "$2b$12$H8oK2DXOx.9z4j4f1BncYubZHgc18Yr1sD7m4G4F1BQvVD3lB9pIC",  # hashed 'user123'
             "role": "user"
+        },
+        "test": {
+            "password": "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW",  # hashed 'test'
+            "role": "user"
         }
     }
 

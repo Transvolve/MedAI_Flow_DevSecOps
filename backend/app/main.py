@@ -27,6 +27,17 @@ app = FastAPI(
     openapi_url="/api/openapi.json"
 )
 
+# Initialize metrics collectors
+from .metrics import (
+    RATE_LIMIT_HITS,
+    RATE_LIMIT_EXCEEDED,
+    RATE_LIMIT_REMAINING,
+    REDIS_CONNECTED,
+    REDIS_OPERATION_LATENCY,
+    REDIS_POOL_SIZE,
+    REDIS_POOL_MAXSIZE
+)
+
 # Setup routes and middleware
 setup_middleware(app)
 
