@@ -1,0 +1,128 @@
+# Default values for medai-flow-monitoring
+# This is a YAML-formatted file.
+
+prometheus:
+  alertmanager:
+    enabled: true
+    configMapOverrideName: "alertmanager-config"
+    ingress:
+      enabled: true
+      ingressClassName: nginx
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt-prod
+      hosts:
+        - alerts.medaiflow.com
+      tls:
+        - secretName: alertmanager-tls
+          hosts:
+            - alerts.medaiflow.com
+    
+    persistence:
+      enabled: true
+      size: 10Gi
+    
+    resources:
+      limits:
+        cpu: 200m
+        memory: 256Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi
+
+  server:
+    retention: 15d
+    
+    ingress:
+      enabled: true
+      ingressClassName: nginx
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt-prod
+      hosts:
+        - metrics.medaiflow.com
+      tls:
+        - secretName: prometheus-tls
+          hosts:
+            - metrics.medaiflow.com
+    
+    persistence:
+      enabled: true
+      size: 50Gi
+    
+    resources:
+      limits:
+        cpu: 1000m
+        memory: 2Gi
+      requests:
+        cpu: 500m
+        memory: 1Gi
+    
+    extraFlags:
+      - web.enable-lifecycle
+      - storage.tsdb.retention.time=15d
+    
+    additionalScrapeConfigs:
+      - job_name: 'redis-exporter'
+        static_configs:
+          - targets: ['${REDIS_HOST}:9121']
+
+grafana:
+  ingress:
+    enabled: true
+    ingressClassName: nginx
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-prod
+    hosts:
+      - grafana.medaiflow.com
+    tls:
+      - secretName: grafana-tls
+        hosts:
+          - grafana.medaiflow.com
+  
+  persistence:
+    enabled: true
+    size: 10Gi
+  
+  resources:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  
+  dashboardProviders:
+    dashboardproviders.yaml:
+      apiVersion: 1
+      providers:
+      - name: 'default'
+        orgId: 1
+        folder: ''
+        type: file
+        disableDeletion: false
+        editable: true
+        options:
+          path: /var/lib/grafana/dashboards/default
+  
+  dashboards:
+    default:
+      rate-limiting:
+        file: dashboards/rate-limiting.json
+  
+  grafana.ini:
+    server:
+      root_url: https://grafana.medaiflow.com
+    auth:
+      disable_login_form: false
+    security:
+      admin_user: admin
+      admin_password: ${GRAFANA_ADMIN_PASSWORD}
+    alerting:
+      enabled: true
+
+prometheus-redis-exporter:
+  redisAddress: redis://${REDIS_HOST}:6379
+  auth:
+    enabled: true
+    secret:
+      name: redis-credentials
+      key: redis-password

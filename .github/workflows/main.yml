@@ -7,11 +7,6 @@ on:
     branches:
       - main
       - feature/**
-    # The following lines limit CI/CD runs only when backend or workflow files change.
-    # Commented out temporarily to enable full pipeline runs on any push (for demo/testing).
-    # paths:
-    #   - 'backend/**'
-    #   - '.github/workflows/**'
   pull_request:
     branches:
       - main
@@ -31,10 +26,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Python 3.11
+      - name: Set up Python 3.12
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: "3.12"
 
       # Cache pip dependencies for faster runs
       - name: Cache pip dependencies
@@ -49,37 +44,78 @@ jobs:
       - name: Install tools
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements-ci.txt
+          pip install -r requirements-ci.txt -r requirements-security.txt
 
       # ✅ Run Lint
       - name: Run Lint
-        run: flake8 backend/app --max-line-length=120 --ignore=E302,E401,F401,W391
+        run: |
+          flake8 backend/app --max-line-length=120 \
+            --ignore=E302,E401,F401,W391,E203,W503 \
+            --statistics
 
       # 🔒 Run Security Scan
       - name: Run Security Scan
-        run: bandit -r backend/app -lll
+        run: |
+          bandit -r backend/app -ll --skip B101,B104 \
+            --exclude backend/app/tests
+
+      # 📦 Run dependency scan
+      - name: Safety dependency scan
+        run: |
+          safety check -r requirements-ci.txt \
+            --ignore=51457 \
+            --full-report
   # ---------------------------
   # Unit Testing
   # ---------------------------
   test:
     runs-on: ubuntu-latest
     needs: lint_security
+    
+    services:
+      redis:
+        image: redis
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Python 3.11
+      - name: Set up Python 3.12
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: "3.12"
+          
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements-ci.txt pytest pytest-asyncio httpx
+          pip install -r requirements-ci.txt
 
       - name: Run unit tests
-        run: pytest -q --maxfail=1 --disable-warnings -v tests/
+        env:
+          REDIS_HOST: localhost
+          REDIS_PORT: 6379
+          JWT_SECRET_KEY: "test_secret_key_123"
+          ALGORITHM: "HS256"
+          ACCESS_TOKEN_EXPIRE_MINUTES: "30"
+          ENVIRONMENT: "ci"
+          PYTHONWARNINGS: "ignore::UserWarning,ignore:PydanticDeprecatedSince20"
+        run: |
+          pytest tests/ -v --disable-warnings --cov=backend/app --cov-report=term-missing
 
   # ---------------------------
   # Build & Push Docker Image
@@ -121,6 +157,14 @@ jobs:
         run: |
           az acr login --name "$ACR_NAME" --subscription ${{ fromJson(secrets.AZURE_CREDENTIALS).subscriptionId }}
 
+      # 🧱 Cache Docker layers (inserted here)
+      - name: Cache Docker layers
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
 
       - name: Build and Push Docker Image
         working-directory: backend
@@ -132,7 +176,12 @@ jobs:
           TAG="${{ github.run_number }}"
 
           echo "🔹 Building ${ACR}/${IMAGE_NAME}:${TAG} and latest ..."
-          docker build -t "${ACR}/${IMAGE_NAME}:${TAG}" -t "${ACR}/${IMAGE_NAME}:latest" .
+          docker build \
+            --cache-from=type=local,src=/tmp/.buildx-cache \
+            --cache-to=type=local,dest=/tmp/.buildx-cache-new \
+            -t "${ACR}/${IMAGE_NAME}:${TAG}" \
+            -t "${ACR}/${IMAGE_NAME}:latest" .
+          rm -rf /tmp/.buildx-cache && mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
           if [ "${{ github.event_name }}" != "pull_request" ]; then
             echo "🔹 Pushing ${ACR}/${IMAGE_NAME}:${TAG} and latest ..."
@@ -141,6 +190,10 @@ jobs:
           else
             echo "Skipping push on pull_request"
           fi
+
+          # Move new cache into place for next runs
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
   # ---------------------------
   # AKS Deployment
