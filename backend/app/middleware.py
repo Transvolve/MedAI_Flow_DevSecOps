@@ -5,6 +5,8 @@ from fastapi import FastAPI, Request, Response
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
+from slowapi import Limiter, _rate_limit_exceeded_handler
 from starlette.middleware import Middleware
 from starlette.middleware.cors import CORSMiddleware
 from starlette.types import ASGIApp

@@ -1,10 +1,17 @@
 """Integration tests for rate limiting metrics and alerts."""
 import pytest
 import time
+import sys
+from pathlib import Path
 from prometheus_client.parser import text_string_to_metric_families
 from fastapi.testclient import TestClient
-from ..app.main import app
-from ..app.metrics import (
+
+# Add backend directory to Python path
+backend_dir = Path(__file__).parent.parent
+sys.path.append(str(backend_dir))
+
+from backend.app.main import app
+from backend.app.metrics import (
     RATE_LIMIT_HITS,
     RATE_LIMIT_EXCEEDED,
     REDIS_OPERATION_LATENCY,
