@@ -47,26 +47,6 @@ def redis_client():
         yield redis_mock
         set_redis_connected(False)
 
-@pytest.fixture(autouse=True)
-def clear_metrics():
-    # Get registry from app module to ensure we're clearing the right metrics
-    from backend.app.metrics import REGISTRY
-    REGISTRY.unregister(RATE_LIMIT_HITS)
-    REGISTRY.unregister(RATE_LIMIT_EXCEEDED)
-    REGISTRY.unregister(REDIS_OPERATION_LATENCY)
-    REGISTRY.unregister(REDIS_CONNECTED)
-    REGISTRY.unregister(REDIS_POOL_SIZE)
-    REGISTRY.unregister(REDIS_POOL_MAXSIZE)
-    
-    # Re-register with cleared state
-    REGISTRY.register(RATE_LIMIT_HITS)
-    REGISTRY.register(RATE_LIMIT_EXCEEDED)
-    REGISTRY.register(REDIS_OPERATION_LATENCY)
-    REGISTRY.register(REDIS_CONNECTED)
-    REGISTRY.register(REDIS_POOL_SIZE)
-    REGISTRY.register(REDIS_POOL_MAXSIZE)
-    yield
-
 def test_rate_limit_metrics(test_client):
     """Test rate limit metrics collection."""
     # Track some rate limit hits
@@ -83,25 +63,34 @@ def test_rate_limit_metrics(test_client):
     metric_text = response.text
     metrics = list(text_string_to_metric_families(metric_text))
     
-    # Find rate limit hits metric
-    hits_metric = next((m for m in metrics if m.name == 'rate_limit_hits_total'), None)
-    assert hits_metric is not None, "rate_limit_hits_total metric not found"
-    
-    # Verify hit count
+    # Helper to find a metric family while being tolerant to prometheus_client
+    # versions which may expose the family name with or without the
+    # conventional `_total` suffix.
+    def find_family(metric_list, base_name):
+        candidates = {base_name, base_name + '_total'}
+        return next((m for m in metric_list if m.name in candidates), None)
+
+    # Find rate limit hits metric (support both 'rate_limit_hits' and
+    # 'rate_limit_hits_total' family names)
+    hits_metric = find_family(metrics, 'rate_limit_hits')
+    assert hits_metric is not None, "rate_limit_hits metric not found"
+
+    # Verify hit count: the actual sample name inside the family for counters
+    # will be '<family>_total' so search sample values by label.
     test_endpoint_hits = next(
-        (s.value for s in hits_metric.samples 
+        (s.value for s in hits_metric.samples
          if s.labels.get('endpoint') == "/api/test"),
         None
     )
     assert test_endpoint_hits == 2, f"Expected 2 hits but found {test_endpoint_hits}"
-    
-    # Find rate limit exceeded metric
-    exceeded_metric = next((m for m in metrics if m.name == 'rate_limit_exceeded_total'), None)
-    assert exceeded_metric is not None, "rate_limit_exceeded_total metric not found"
-    
+
+    # Find rate limit exceeded metric (support both naming styles)
+    exceeded_metric = find_family(metrics, 'rate_limit_exceeded')
+    assert exceeded_metric is not None, "rate_limit_exceeded metric not found"
+
     # Verify exceeded count
     test_endpoint_exceeded = next(
-        (s.value for s in exceeded_metric.samples 
+        (s.value for s in exceeded_metric.samples
          if s.labels.get('endpoint') == "/api/test"),
         None
     )
@@ -119,8 +108,7 @@ async def test_redis_latency_metrics(redis_client):
     # Perform Redis operation
     result = test_redis_op()
     assert result == "test_value"
-    
-    # Get metrics
+
     # Get metrics
     response = TestClient(app).get("/metrics")
     metrics = list(text_string_to_metric_families(response.text))
@@ -184,10 +172,14 @@ async def test_alert_conditions(test_client, redis_client):
     metric_text = response.text
     metrics = list(text_string_to_metric_families(metric_text))
     
-    # Find rate limit hits metric
-    hits_metric = next((m for m in metrics if m.name == 'rate_limit_hits_total'), None)
-    assert hits_metric is not None, "rate_limit_hits_total metric not found"
-    
+    # Find rate limit hits metric (support both naming styles)
+    def find_family(metric_list, base_name):
+        candidates = {base_name, base_name + '_total'}
+        return next((m for m in metric_list if m.name in candidates), None)
+
+    hits_metric = find_family(metrics, 'rate_limit_hits')
+    assert hits_metric is not None, "rate_limit_hits metric not found"
+
     # Verify high rate limit usage
     test_endpoint_hits = next(
         (s.value for s in hits_metric.samples 

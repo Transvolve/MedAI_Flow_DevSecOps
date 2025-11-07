@@ -136,6 +136,29 @@ curl -X POST "http://127.0.0.1:8080/infer" \
 
 # Tip: If your IDE or terminal warns that packages like uvicorn, flake8, pytest, or bandit are not installed, ensure the correct Python environment is activated and re-run the pip install command above.
 
+## Testing & Virtual Environment (recommended)
+
+Use a virtual environment for reproducible local testing and to match the CI environment. From the repository root (PowerShell):
+
+```powershell
+# Create virtual environment (if missing)
+python -m venv .venv
+# Activate for the current PowerShell session
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process -Force
+. .\.venv\Scripts\Activate.ps1
+# Install test/dev dependencies
+pip install -r requirements-ci.txt
+```
+
+Run the test suite with the venv Python so the same interpreter and packages used in CI are used locally:
+
+```powershell
+python -m pytest -q
+```
+
+Note: tests interact with the Prometheus exposition format. Different versions of `prometheus_client` expose metric "families" using slightly different family-name conventions (some parsers present the family as `rate_limit_hits` while the sample within it appears as `rate_limit_hits_total`). Tests in this repository have been made tolerant to either naming style to avoid brittle failures when CI or local dependency versions are upgraded. We recommend keeping tests tolerant rather than pinning that dependency, unless strict reproducibility is required for a release.
+
+
 # For CI/CD Reference
 
 The automated GitHub Actions pipeline installs the same dependencies from requirements-ci.txt during every run to guarantee consistent environments between local testing and the hosted runner.
