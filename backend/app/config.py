@@ -63,6 +63,12 @@ class Settings(BaseSettings):
     cors_methods: list[str] = ["*"]
     cors_headers: list[str] = ["*"]
 
+    # HTTPS Enforcement
+    enforce_https: bool = Field(
+        default=False,
+        description="Enforce HTTPS for all incoming requests"
+    )
+
     # Response Rate Limits (bytes/second)
     max_response_rate: int = 1_000_000  # 1MB/s
 

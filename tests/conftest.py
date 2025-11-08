@@ -5,6 +5,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 from fastapi.testclient import TestClient
 from redis import Redis
+import fakeredis
 
 # Add backend directory to Python path
 backend_dir = Path(__file__).parent.parent
@@ -12,6 +13,7 @@ sys.path.append(str(backend_dir))
 
 from fastapi.testclient import TestClient
 from backend.app.main import app
+from backend.app.redis_security import get_secure_redis_client
 
 @pytest.fixture
 def test_client():
@@ -43,3 +45,34 @@ def mock_redis():
          patch('backend.app.redis_security.get_secure_redis_client', return_value=redis_mock), \
          patch('backend.app.rate_limit.Redis', redis_class_mock):
         yield redis_mock
+
+@pytest.fixture(scope="module")
+def client():
+    with TestClient(app) as c:
+        yield c
+
+import pytest
+from fastapi.testclient import TestClient
+import fakeredis
+
+from backend.app.main import app
+from backend.app.redis_security import set_redis_client
+
+@pytest.fixture(scope="session", autouse=True)
+def mock_redis_client():
+    """
+    Fixture to replace the real Redis client with a fake one for the entire test session.
+    This runs once before any tests start.
+    """
+    fake_redis = fakeredis.FakeRedis(decode_responses=True)
+    set_redis_client(fake_redis)
+    yield fake_redis
+    fake_redis.flushall()
+
+@pytest.fixture(scope="module")
+def client():
+    """
+    Provides a TestClient for making requests to the FastAPI app in tests.
+    """
+    with TestClient(app) as c:
+        yield c
