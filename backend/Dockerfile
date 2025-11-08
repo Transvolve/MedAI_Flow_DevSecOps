@@ -10,20 +10,24 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /app
 
 # Copy and install Python dependencies (adjusting for build context root)
+# Use --no-warn-script-location to suppress pip script PATH warnings
 COPY backend/requirements-ci.txt backend/requirements-security.txt ./
-RUN pip install --no-cache-dir --user -r requirements-ci.txt -r requirements-security.txt
+RUN pip install --no-cache-dir --no-warn-script-location --user -r requirements-ci.txt -r requirements-security.txt
 
 # ============================================================
 # Final stage - minimal runtime image
 # ============================================================
 FROM python:3.11-slim
 
+# Suppress debconf warnings in non-interactive environments
+ENV DEBIAN_FRONTEND=noninteractive
+
 # Install curl for health checks
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Create non-root user for security
+# Create non-root user for security (uid 1000 is valid for app user)
 RUN groupadd -r medai && useradd -r -g medai -u 1000 medai
 
 WORKDIR /app
