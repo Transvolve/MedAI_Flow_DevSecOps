@@ -179,8 +179,8 @@ jobs:
         if: github.ref == 'refs/heads/main'
         uses: docker/build-push-action@v5
         with:
-          context: ${{ env.DOCKER_CONTEXT }}
-          file: ${{ env.DOCKERFILE }}
+          context: .
+          file: ./backend/Dockerfile
           push: true
           tags: ${{ steps.meta-main.outputs.tags }}
           labels: ${{ steps.meta-main.outputs.labels }}
@@ -192,8 +192,8 @@ jobs:
         if: github.ref != 'refs/heads/main'
         uses: docker/build-push-action@v5
         with:
-          context: ${{ env.DOCKER_CONTEXT }}
-          file: ${{ env.DOCKERFILE }}
+          context: .
+          file: ./backend/Dockerfile
           push: true
           tags: ${{ steps.meta-feature.outputs.tags }}
           labels: ${{ steps.meta-feature.outputs.labels }}
