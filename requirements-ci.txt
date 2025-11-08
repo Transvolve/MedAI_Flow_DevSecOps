@@ -18,5 +18,5 @@ slowapi==0.1.8
 prometheus-client==0.17.1
 redis==5.0.1
 aioredis==2.0.1
-argon2-cffi>=23.1.0
+fakeredis==2.21.0
 argon2-cffi>=23.1.0
