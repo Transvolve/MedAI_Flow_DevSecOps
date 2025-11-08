@@ -9,8 +9,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
-# Copy and install Python dependencies
-COPY requirements-ci.txt requirements-security.txt ./
+# Copy and install Python dependencies (adjusting for build context root)
+COPY backend/requirements-ci.txt backend/requirements-security.txt ./
 RUN pip install --no-cache-dir --user -r requirements-ci.txt -r requirements-security.txt
 
 # ============================================================
@@ -31,8 +31,8 @@ WORKDIR /app
 # Copy Python packages from builder
 COPY --from=builder /root/.local /home/medai/.local
 
-# Copy application code
-COPY --chown=medai:medai app /app
+# Copy application code (adjusting for build context root)
+COPY --chown=medai:medai backend/app /app
 
 # Set PATH for user-installed packages
 ENV PATH=/home/medai/.local/bin:$PATH
