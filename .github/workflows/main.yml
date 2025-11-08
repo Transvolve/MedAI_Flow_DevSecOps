@@ -180,8 +180,19 @@ jobs:
             type=raw,value=${{ env.VERSION_TAG }}
             type=ref,event=branch
 
+      - name: Disable buildkit and reset docker context
+        run: |
+          # Disable docker buildkit to use legacy builder
+          unset DOCKER_BUILDKIT
+          # Reset docker context to default
+          docker context use default || true
+          # Clear any builder references
+          docker context ls
+
       - name: Build & push image (Main - ACR)
         if: github.ref == 'refs/heads/main'
+        env:
+          DOCKER_BUILDKIT: 0
         run: |
           echo "${{ steps.meta-main.outputs.tags }}" | while read tag; do
             docker build -f ${{ github.workspace }}/backend/Dockerfile -t "$tag" ${{ github.workspace }}
@@ -190,6 +201,8 @@ jobs:
 
       - name: Build & push image (Feature - GHCR)
         if: github.ref != 'refs/heads/main'
+        env:
+          DOCKER_BUILDKIT: 0
         run: |
           echo "${{ steps.meta-feature.outputs.tags }}" | while read tag; do
             docker build -f ${{ github.workspace }}/backend/Dockerfile -t "$tag" ${{ github.workspace }}
