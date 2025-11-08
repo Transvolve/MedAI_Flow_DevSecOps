@@ -1,5 +1,5 @@
 """
-security.py
+security (renamed to auth.py)
 ------------
 Production-grade JWT authentication, password hashing, and role enforcement
 with Redis-based token revocation. Designed for healthcare systems (FDA / ISO
@@ -203,5 +203,3 @@ def requires_role(allowed_roles: List[str]):
 def verify_token(token: str) -> Dict:
     """Decode and return JWT payload (raises HTTPException if invalid)."""
     return decode_token(token)
-
-
