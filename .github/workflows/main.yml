@@ -156,6 +156,14 @@ jobs:
           # Restart docker daemon to clear any cached state
           sudo systemctl restart docker || true
 
+      - name: GHCR login (Feature branches)
+        if: github.ref != 'refs/heads/main'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Docker metadata (Main)
         id: meta-main
         if: github.ref == 'refs/heads/main'
