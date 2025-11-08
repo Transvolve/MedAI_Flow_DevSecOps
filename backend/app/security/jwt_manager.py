@@ -7,7 +7,7 @@ from typing import Iterable, Optional, Callable
 from types import SimpleNamespace
 
 from fastapi import Depends, HTTPException, status
-from jose import jwt, JWTError
+from jose import jwt, JWTError  # type: ignore
 
 from backend.app.config import settings
 from backend.app.redis_security import get_secure_redis_client

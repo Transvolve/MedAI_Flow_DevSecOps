@@ -15,8 +15,8 @@ from typing import Optional, Dict, List
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-from jose import JWTError, jwt
-from passlib.context import CryptContext
+from jose import JWTError, jwt  # type: ignore
+from passlib.context import CryptContext  # type: ignore
 from pydantic import BaseModel
 
 from backend.app.config import settings
