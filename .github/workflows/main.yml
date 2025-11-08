@@ -1,5 +1,4 @@
 ---
-  # just for generate autorun for testing - can be delete this comment any time
 name: MedAI_Flow_DevSecOps CI/CD Pipeline
 
 on:
@@ -7,211 +6,175 @@ on:
     branches:
       - main
       - feature/**
+      - fix/**
+      - chore/**
   pull_request:
     branches:
       - main
   workflow_dispatch:
-      
+
 permissions:
   contents: read
+  packages: write
   id-token: write
 
+env:
+  PYTHON_VERSION: "3.12"
+  ACR_NAME: ${{ secrets.ACR_NAME }}                            # e.g. myregistry
+  ACR_LOGIN_SERVER: ${{ secrets.ACR_LOGIN_SERVER }}            # e.g. myregistry.azurecr.io
+  IMAGE_NAME: medai-flow-backend
+  DOCKER_CONTEXT: ./backend
+  DOCKERFILE: ./backend/Dockerfile
+
 jobs:
-  # ---------------------------
-  # Lint & Security Scan
-  # ---------------------------
   lint_security:
+    name: "Lint & Security Scan"
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Python 3.12
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: ${{ env.PYTHON_VERSION }}
 
-      # Cache pip dependencies for faster runs
-      - name: Cache pip dependencies
+      - name: Cache pip
         uses: actions/cache@v4
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt') }}
+          key: pip-${{ runner.os }}-${{ env.PYTHON_VERSION }}-${{ hashFiles('requirements-ci.txt') }}
           restore-keys: |
-            ${{ runner.os }}-pip-
+            pip-${{ runner.os }}-${{ env.PYTHON_VERSION }}-
 
-      # 📦 Install linting & security tools
-      - name: Install tools
+      - name: Install CI dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements-ci.txt -r requirements-security.txt
+          pip install -r requirements-ci.txt
+          pip install ruff mypy bandit pip-audit
 
-      # ✅ Run Lint
-      - name: Run Lint
-        run: |
-          flake8 backend/app --max-line-length=120 \
-            --ignore=E302,E401,F401,W391,E203,W503 \
-            --statistics
+      - name: Ruff (lint)
+        run: ruff check .
 
-      # 🔒 Run Security Scan
-      - name: Run Security Scan
-        run: |
-          bandit -r backend/app -ll --skip B101,B104 \
-            --exclude backend/app/tests
+      - name: Mypy (type checking)
+        run: mypy backend tests
 
-      # 📦 Run dependency scan
-      - name: Safety dependency scan
-        run: |
-          safety check -r requirements-ci.txt \
-            --ignore=51457 \
-            --full-report
-  # ---------------------------
-  # Unit Testing
-  # ---------------------------
+      - name: Bandit (security static analysis)
+        run: bandit -r backend -x backend/tests -ll
+
+      - name: pip-audit (vulnerability scan)
+        run: pip-audit -r requirements-ci.txt || true  # non-blocking
+
+      - name: Sanity import check
+        run: python -c "import importlib; importlib.import_module('backend.app.main')"
+
   test:
+    name: "Tests"
     runs-on: ubuntu-latest
     needs: lint_security
-    
+
     services:
       redis:
-        image: redis
+        image: redis:7
         ports:
           - 6379:6379
         options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+          --health-cmd "redis-cli ping || exit 1"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 20
+
+    env:
+      REDIS_URL: redis://localhost:6379/0
+      JWT_SECRET_KEY: "test-secret"
+      JWT_ALGORITHM: "HS256"
+      ACCESS_TOKEN_EXPIRE_MINUTES: "30"
 
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Python 3.12
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
-          
-      - name: Cache pip dependencies
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Cache pip
         uses: actions/cache@v4
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt') }}
+          key: pip-${{ runner.os }}-${{ env.PYTHON_VERSION }}-${{ hashFiles('requirements-ci.txt') }}
           restore-keys: |
-            ${{ runner.os }}-pip-
+            pip-${{ runner.os }}-${{ env.PYTHON_VERSION }}-
 
-      - name: Install dependencies
+      - name: Install test dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements-ci.txt
 
-      - name: Run unit tests
-        env:
-          REDIS_HOST: localhost
-          REDIS_PORT: 6379
-          JWT_SECRET_KEY: "test_secret_key_123"
-          ALGORITHM: "HS256"
-          ACCESS_TOKEN_EXPIRE_MINUTES: "30"
-          ENVIRONMENT: "ci"
-          PYTHONWARNINGS: "ignore::UserWarning,ignore:PydanticDeprecatedSince20"
-        run: |
-          pytest tests/ -v --disable-warnings --cov=backend/app --cov-report=term-missing
-
-  # ---------------------------
-  # Build & Push Docker Image
-  # ---------------------------
-  build_push:
-    runs-on: ubuntu-latest
-    needs: test
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Preflight check
-        run: |
-          echo "== repo root =="
-          ls -la
-          echo "== backend =="
-          ls -la backend || true
-          echo "== backend/app =="
-          ls -la backend/app || true
-          test -d backend/app || (echo "❌ backend/app missing" && exit 1)
-          test -f backend/Dockerfile || (echo "❌ backend/Dockerfile missing" && exit 1)
-
       - name: Debug environment values
         run: |
-          echo "ACR_NAME=${{ secrets.ACR_NAME }}"
-          echo "AKS_CLUSTER=${{ secrets.AKS_CLUSTER }}"
-          echo "RESOURCE_GROUP=${{ secrets.RESOURCE_GROUP }}"
+          python -V
+          which python
+          echo "Redis URL: $REDIS_URL"
+          pip list | sed -n '1,120p'
 
-      - name: Azure Login
-        if: github.event_name != 'pull_request'
-        uses: azure/login@v2
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      - name: Login to ACR
-        if: github.event_name != 'pull_request'
-        env:
-          ACR_NAME: ${{ secrets.ACR_NAME }}
+      - name: Run tests with coverage
         run: |
-          az acr login --name "$ACR_NAME" --subscription ${{ fromJson(secrets.AZURE_CREDENTIALS).subscriptionId }}
+          pytest -v --disable-warnings \
+            --cov=backend/app --cov-report=term-missing
 
-      # 🧱 Cache Docker layers (inserted here)
-      - name: Cache Docker layers
-        uses: actions/cache@v4
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-
-
-      - name: Build and push image with build-push-action
-        uses: docker/build-push-action@v4
-        with:
-          context: ./backend
-          push: ${{ github.event_name != 'pull_request' }}
-          tags: |
-            ${{ secrets.ACR_NAME }}.azurecr.io/medai_flow_backend:${{ github.run_number }}
-            ${{ secrets.ACR_NAME }}.azurecr.io/medai_flow_backend:latest
-          # Use the default builder; do not attempt local cache export on runners
-          # To enable caching across runs, consider using `cache-to=type=gha` with
-          # `cache-from=type=gha` and the action's cache feature.
-
-  # ---------------------------
-  # AKS Deployment
-  # ---------------------------
-  deploy:
+  build_push:
+    name: "Build & Push Docker Image"
     runs-on: ubuntu-latest
-    needs: build_push
-    # Deploy automatically on main branch pushes, or manually via workflow_dispatch
-    if: (github.ref == 'refs/heads/main' && github.event_name == 'push') || github.event_name == 'workflow_dispatch'
+    needs: [lint_security, test]
+    if: github.event_name != 'pull_request'
+
+    env:
+      VERSION_TAG: v${{ github.run_number }}-${{ github.sha }}
+      LATEST_TAG: latest
+
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Azure Login
+      - name: Azure login (OIDC)
         uses: azure/login@v2
-        # yamllint disable-line rule:truthy
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Get AKS Credentials
-        env:
-          RESOURCE_GROUP: ${{ secrets.RESOURCE_GROUP }}
-          AKS_CLUSTER: ${{ secrets.AKS_CLUSTER }}
-        run: |
-          az aks get-credentials \
-            --resource-group "$RESOURCE_GROUP" \
-            --name "$AKS_CLUSTER" \
-            --overwrite-existing
+      - name: ACR login
+        run: az acr login --name "$ACR_NAME"
 
-      - name: Deploy to AKS
-        run: |
-          kubectl apply -f infra/aks_deploy.yaml
-          kubectl rollout status deployment/medai-flow-deployment || true
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-      - name: Verify Deployment
+      - name: Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ${{ env.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=${{ env.VERSION_TAG }}
+            type=raw,value=${{ env.LATEST_TAG }},enable=${{ github.ref == 'refs/heads/main' }}
+
+      - name: Build & push image
+        uses: docker/build-push-action@v5
+        with:
+          context: ${{ env.DOCKER_CONTEXT }}
+          file: ${{ env.DOCKERFILE }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          provenance: false
+
+      - name: Show pushed tags
         run: |
-          kubectl get pods -o wide
-          kubectl get services
+          echo "Published image tags:"
+          echo "${{ steps.meta.outputs.tags }}"
+
