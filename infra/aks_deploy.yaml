@@ -2,6 +2,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: medai-backend
+  labels:
+    app: medai-backend
+    version: v1.0.2
 spec:
   replicas: 3
   selector:
@@ -11,12 +14,37 @@ spec:
     metadata:
       labels:
         app: medai-backend
+        version: v1.0.2
     spec:
+      # Security: Use non-root user
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      
       containers:
       - name: medai-backend
-        image: ghcr.io/<your-gh-username>/medai_flow_backend:latest
+        image: medaiflowacr.azurecr.io/medai_flow_backend:latest
+        imagePullPolicy: Always
+        
         ports:
-        - containerPort: 8000
+        - name: http
+          containerPort: 8000
+          protocol: TCP
+        
+        # Security context for container
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 1000
+          capabilities:
+            drop:
+              - ALL
+        
+        # Resource management
         resources:
           requests:
             cpu: "250m"
@@ -24,9 +52,80 @@ spec:
           limits:
             cpu: "500m"
             memory: "512Mi"
+        
+        # Health checks
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+            scheme: HTTP
+          initialDelaySeconds: 15
+          periodSeconds: 10
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 3
+        
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+            scheme: HTTP
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          successThreshold: 1
+          failureThreshold: 3
+        
+        # Environment variables from ConfigMap/Secrets
         env:
         - name: ENV
           value: "production"
+        - name: ENFORCE_HTTPS
+          value: "true"
+        - name: JWT_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: medai-secrets
+              key: jwt-secret-key
+        - name: REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              name: medai-secrets
+              key: redis-url
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: medai-secrets
+              key: redis-password
+        
+        # Volume mounts for writable directories
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+        - name: cache
+          mountPath: /home/medai/.cache
+      
+      volumes:
+      - name: tmp
+        emptyDir: {}
+      - name: cache
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: medai-service
+  labels:
+    app: medai-backend
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8000
+    targetPort: http
+    protocol: TCP
+    name: http
+  selector:
+    app: medai-backend
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
@@ -46,3 +145,19 @@ spec:
       target:
         type: Utilization
         averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: medai-pdb
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: medai-backend

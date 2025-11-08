@@ -372,6 +372,37 @@ This project follows a dual-track development approach: **Regulatory Compliance*
 
 **Impact:** [4/5] Performance | [4/5] Scalability | [3/5] Reliability
 
+---
+
+## 🔒 Security
+
+**Security is a top priority** for this medical AI platform. See our [Security Policy](SECURITY.md) for:
+- Vulnerability reporting procedures
+- Production security checklist
+- Compliance standards (FDA, ISO 27001, HIPAA)
+- Security architecture overview
+- Incident response procedures
+
+### Security Highlights
+- ✅ **Authentication**: JWT with OAuth2 password flow
+- ✅ **Authorization**: Role-based access control (RBAC)
+- ✅ **Password Hashing**: Argon2id (OWASP recommended)
+- ✅ **Token Revocation**: Redis-backed blacklist
+- ✅ **Rate Limiting**: 60 req/min per IP (Redis-backed)
+- ✅ **Security Headers**: HSTS, CSP, X-Frame-Options
+- ✅ **Container Security**: Non-root user, read-only filesystem
+- ✅ **Network Security**: Kubernetes NetworkPolicy
+- ✅ **Secrets Management**: Azure Key Vault integration
+- ✅ **CI/CD Security**: Bandit, Safety, Flake8 scans
+
+**Compliance Documentation**: See [`compliance/`](compliance/) directory for:
+- [ISO 27001 Security Controls](compliance/iso_27001_security_controls.md)
+- [FDA 21 CFR 820 Traceability Matrix](compliance/fda_21cfr820_traceability_matrix.md)
+- [Risk Management File](compliance/RISK_MANAGEMENT_FILE.md)
+- [Software Requirements Specification](compliance/SOFTWARE_REQUIREMENTS_SPECIFICATION.md)
+
+---
+
 **License**
 This project will be released under the MIT License (LICENSE file to be added in the next update).
 
