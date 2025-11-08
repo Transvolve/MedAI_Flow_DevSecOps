@@ -153,11 +153,14 @@ jobs:
       - name: Clean Docker contexts
         run: docker context prune --force || true
 
-      - name: Set up Docker Buildx
+      - name: Remove stale buildx builders
+        run: |
+          docker buildx ls | grep -v BUILDKIT_HOST | awk '{print $1}' | xargs -I {} docker buildx rm {} || true
+          
+      - name: Set up Docker Buildx (Fresh)
         uses: docker/setup-buildx-action@v3
         with:
-          append: |
-            - flags: --allow-insecure-entitlement security.insecure
+          driver: docker
 
       - name: Docker metadata (Main)
         id: meta-main
