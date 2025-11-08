@@ -139,6 +139,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Azure login (OIDC)
+        if: github.ref == 'refs/heads/main'
         uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
@@ -146,37 +147,71 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: ACR login
+        if: github.ref == 'refs/heads/main'
         run: az acr login --name "$ACR_NAME"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Docker metadata
-        id: meta
+      - name: Docker metadata (Main)
+        id: meta-main
+        if: github.ref == 'refs/heads/main'
         uses: docker/metadata-action@v5
         with:
           images: |
             ${{ env.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}
           tags: |
             type=raw,value=${{ env.VERSION_TAG }}
-            type=raw,value=${{ env.LATEST_TAG }},enable=${{ github.ref == 'refs/heads/main' }}
+            type=raw,value=${{ env.LATEST_TAG }}
 
-      - name: Build & push image
+      - name: Docker metadata (Feature)
+        id: meta-feature
+        if: github.ref != 'refs/heads/main'
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=${{ env.VERSION_TAG }}
+            type=ref,event=branch
+
+      - name: Build & push image (Main - ACR)
+        if: github.ref == 'refs/heads/main'
         uses: docker/build-push-action@v5
         with:
           context: ${{ env.DOCKER_CONTEXT }}
           file: ${{ env.DOCKERFILE }}
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ steps.meta-main.outputs.tags }}
+          labels: ${{ steps.meta-main.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           provenance: false
 
-      - name: Show pushed tags
+      - name: Build & push image (Feature - GHCR)
+        if: github.ref != 'refs/heads/main'
+        uses: docker/build-push-action@v5
+        with:
+          context: ${{ env.DOCKER_CONTEXT }}
+          file: ${{ env.DOCKERFILE }}
+          push: true
+          tags: ${{ steps.meta-feature.outputs.tags }}
+          labels: ${{ steps.meta-feature.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          provenance: false
+
+      - name: Show pushed tags (Main)
+        if: github.ref == 'refs/heads/main'
         run: |
-          echo "Published image tags:"
-          echo "${{ steps.meta.outputs.tags }}"
+          echo "Published ACR image tags:"
+          echo "${{ steps.meta-main.outputs.tags }}"
+
+      - name: Show pushed tags (Feature)
+        if: github.ref != 'refs/heads/main'
+        run: |
+          echo "Published GHCR image tags:"
+          echo "${{ steps.meta-feature.outputs.tags }}"
 
   deploy:
     name: "Deploy to AKS"
