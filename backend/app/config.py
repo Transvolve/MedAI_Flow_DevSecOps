@@ -1,11 +1,13 @@
 from typing import Dict
 from typing import Optional
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import Field
 import secrets
 
 
 class Settings(BaseSettings):
+    model_config = SettingsConfigDict(env_file=".env", case_sensitive=False)
+    
     app_name: str = Field(default="MedAI Flow Backend")
     app_version: str = Field(default="1.0")
 
@@ -71,10 +73,6 @@ class Settings(BaseSettings):
 
     # Response Rate Limits (bytes/second)
     max_response_rate: int = 1_000_000  # 1MB/s
-
-    class Config:
-        env_file = ".env"
-        case_sensitive = False
 
 
 settings = Settings()

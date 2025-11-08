@@ -63,7 +63,7 @@ async def infer(request: InferenceRequest) -> Dict[str, Any]:
         return {"message": "Model runtime not available in this environment."}
 
     try:
-        import numpy as np
+        import numpy as np  # type: ignore
 
         image_array = np.array(request.data, dtype=np.float32)
         outputs = ml_inference.predict(image_array)

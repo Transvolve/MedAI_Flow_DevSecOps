@@ -83,7 +83,7 @@ def _revoke_token(jti: str, exp_ts: Optional[int]) -> None:
     r = get_secure_redis_client()
     key = f"jwt:blacklist:{jti}"
     now = int(datetime.now(tz=timezone.utc).timestamp())
-    ttl = max(1, (exp_ts - now) if exp_ts else settings.jwt_exp_minutes * 60)
+    ttl = max(1, (exp_ts - now) if exp_ts else settings.access_token_expire_minutes * 60)
     r.set(key, "1", ex=ttl)
 
 
@@ -108,7 +108,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
     """Create a signed JWT with embedded role and unique JTI."""
     to_encode = data.copy()
     expire = datetime.now(tz=timezone.utc) + (
-        expires_delta or timedelta(minutes=settings.jwt_exp_minutes)
+        expires_delta or timedelta(minutes=settings.access_token_expire_minutes)
     )
     to_encode.update(
         {

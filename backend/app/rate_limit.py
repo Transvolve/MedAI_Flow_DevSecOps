@@ -35,7 +35,7 @@ class RedisLimiter(Limiter):
         """
         super().__init__(
             key_func=key_func,
-            default_limits=default_limits,
+            default_limits=default_limits,  # type: ignore
             strategy=strategy,
             headers_enabled=headers_enabled
         )
@@ -69,7 +69,7 @@ class RedisLimiter(Limiter):
             Tuple of (is_allowed, remaining_requests)
         """
         redis_key = self.get_redis_key(key)
-        pipe = self.redis.pipeline()
+        pipe = self.redis.pipeline()  # type: ignore
 
         try:
             # Increment counter and set expiry

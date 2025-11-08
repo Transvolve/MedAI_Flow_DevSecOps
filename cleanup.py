@@ -1,25 +1,34 @@
+# cleanup.py
 import glob
-import os
+import shutil
+from pathlib import Path
 
-def clean_file(file_path):
-    with open(file_path, 'r') as f:
-        lines = f.readlines()
-    
-    # Clean empty lines (remove whitespace but preserve the newline)
-    cleaned = [line.rstrip() + '\n' if line.strip() == '' else line for line in lines]
-    
-    # Ensure exactly one newline at the end of file
-    while cleaned and cleaned[-1].strip() == '':
-        cleaned.pop()
-    cleaned.append('\n')
-    
-    with open(file_path, 'w', newline='\n') as f:
-        f.writelines(cleaned)
+# Folders/files to purge locally and in CI
+PATTERNS = [
+    "**/__pycache__",
+    "**/*.pyc",
+    ".pytest_cache",
+    ".mypy_cache",
+    ".ruff_cache",
+    "dist",
+    "build",
+    "htmlcov",
+    ".coverage",
+]
 
-def main():
-    python_files = glob.glob('backend/app/*.py')
-    for file_path in python_files:
-        clean_file(file_path)
+def _clean_path(p: str) -> None:
+    path = Path(p)
+    if not path.exists():
+        return
+    if path.is_file():
+        path.unlink(missing_ok=True)
+    else:
+        shutil.rmtree(path, ignore_errors=True)
 
-if __name__ == '__main__':
+def main() -> None:
+    for pattern in PATTERNS:
+        for match in glob.glob(pattern, recursive=True):
+            _clean_path(match)
+
+if __name__ == "__main__":
     main()
