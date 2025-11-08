@@ -150,8 +150,14 @@ jobs:
         if: github.ref == 'refs/heads/main'
         run: az acr login --name "$ACR_NAME"
 
+      - name: Clean Docker contexts
+        run: docker context prune --force || true
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+        with:
+          append: |
+            - flags: --allow-insecure-entitlement security.insecure
 
       - name: Docker metadata (Main)
         id: meta-main
