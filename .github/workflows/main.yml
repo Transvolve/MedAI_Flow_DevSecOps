@@ -169,7 +169,7 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: |
-            ${{ env.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}
+            ${{ secrets.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}
           tags: |
             type=raw,value=${{ env.VERSION_TAG }}
             type=raw,value=${{ env.LATEST_TAG }}
@@ -199,7 +199,14 @@ jobs:
         env:
           DOCKER_BUILDKIT: 0
         run: |
+          echo "DEBUG: ACR_LOGIN_SERVER = ${{ secrets.ACR_LOGIN_SERVER }}"
+          echo "DEBUG: IMAGE_NAME = ${{ env.IMAGE_NAME }}"
+          echo "DEBUG: VERSION_TAG = ${{ env.VERSION_TAG }}"
+          echo "DEBUG: Meta tags output:"
+          echo "${{ steps.meta-main.outputs.tags }}"
+          echo "---"
           echo "${{ steps.meta-main.outputs.tags }}" | while read tag; do
+            echo "Building with tag: $tag"
             docker build -f ${{ github.workspace }}/backend/Dockerfile -t "$tag" ${{ github.workspace }}
             docker push "$tag"
           done
