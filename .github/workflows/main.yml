@@ -165,6 +165,15 @@ jobs:
         if: github.ref == 'refs/heads/main'
         run: az acr login --name "$ACR_NAME"
 
+      - name: Clean Docker contexts
+        run: docker context prune --force || true
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          append: |
+            - flags: --allow-insecure-entitlement security.insecure
+
       - name: Docker metadata (Main)
         id: meta-main
         if: github.ref == 'refs/heads/main'
@@ -213,7 +222,7 @@ jobs:
 
       - name: Show pushed tags (Main)
         if: github.ref == 'refs/heads/main'
->>>>>>> 5fd7579 (fix(ci): remove buildx setup and GHA cache to fix context not found error)
+
         run: |
           az acr login --name "$ACR_NAME" --subscription ${{ fromJson(secrets.AZURE_CREDENTIALS).subscriptionId }}
 
