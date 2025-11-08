@@ -160,6 +160,60 @@ jobs:
         if: github.event_name != 'pull_request'
         env:
           ACR_NAME: ${{ secrets.ACR_NAME }}
+
+      - name: ACR login
+        if: github.ref == 'refs/heads/main'
+        run: az acr login --name "$ACR_NAME"
+
+      - name: Docker metadata (Main)
+        id: meta-main
+        if: github.ref == 'refs/heads/main'
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ${{ env.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=${{ env.VERSION_TAG }}
+            type=raw,value=${{ env.LATEST_TAG }}
+
+      - name: Docker metadata (Feature)
+        id: meta-feature
+        if: github.ref != 'refs/heads/main'
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=${{ env.VERSION_TAG }}
+            type=ref,event=branch
+
+      - name: Build & push image (Main - ACR)
+        if: github.ref == 'refs/heads/main'
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./backend/Dockerfile
+          push: true
+          tags: ${{ steps.meta-main.outputs.tags }}
+          labels: ${{ steps.meta-main.outputs.labels }}
+          provenance: false
+          builder: default
+
+      - name: Build & push image (Feature - GHCR)
+        if: github.ref != 'refs/heads/main'
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./backend/Dockerfile
+          push: true
+          tags: ${{ steps.meta-feature.outputs.tags }}
+          labels: ${{ steps.meta-feature.outputs.labels }}
+          provenance: false
+          builder: default
+
+      - name: Show pushed tags (Main)
+        if: github.ref == 'refs/heads/main'
+>>>>>>> 5fd7579 (fix(ci): remove buildx setup and GHA cache to fix context not found error)
         run: |
           az acr login --name "$ACR_NAME" --subscription ${{ fromJson(secrets.AZURE_CREDENTIALS).subscriptionId }}
 
