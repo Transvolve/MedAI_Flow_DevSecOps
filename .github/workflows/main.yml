@@ -128,7 +128,7 @@ jobs:
     name: "Build & Push Docker Image"
     runs-on: ubuntu-latest
     needs: [lint_security, test]
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    if: github.event_name != 'pull_request'
 
     env:
       VERSION_TAG: v${{ github.run_number }}-${{ github.sha }}
@@ -177,4 +177,52 @@ jobs:
         run: |
           echo "Published image tags:"
           echo "${{ steps.meta.outputs.tags }}"
+
+  deploy:
+    name: "Deploy to AKS"
+    runs-on: ubuntu-latest
+    needs: build_push
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+
+    env:
+      AKS_CLUSTER: ${{ secrets.AKS_CLUSTER }}
+      RESOURCE_GROUP: ${{ secrets.RESOURCE_GROUP }}
+      KUBE_NAMESPACE: "default"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Azure login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Set AKS context
+        run: |
+          az aks get-credentials \
+            --resource-group "${{ env.RESOURCE_GROUP }}" \
+            --name "${{ env.AKS_CLUSTER }}" \
+            --overwrite-existing
+
+      - name: Update AKS deployment image
+        run: |
+          kubectl set image deployment/medai-flow-backend \
+            medai-flow-backend="${{ env.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:v${{ github.run_number }}-${{ github.sha }}" \
+            --namespace="${{ env.KUBE_NAMESPACE }}" \
+            --record
+
+      - name: Verify deployment rollout
+        run: |
+          kubectl rollout status deployment/medai-flow-backend \
+            --namespace="${{ env.KUBE_NAMESPACE }}" \
+            --timeout=5m
+
+      - name: Get deployment info
+        run: |
+          kubectl get deployment medai-flow-backend -n ${{ env.KUBE_NAMESPACE }} -o wide
+          kubectl get pods -n ${{ env.KUBE_NAMESPACE }} -l app=medai-flow-backend
+
 
