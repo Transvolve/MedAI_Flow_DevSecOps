@@ -23,8 +23,6 @@ env:
   ACR_NAME: ${{ secrets.ACR_NAME }}                            # e.g. myregistry
   ACR_LOGIN_SERVER: ${{ secrets.ACR_LOGIN_SERVER }}            # e.g. myregistry.azurecr.io
   IMAGE_NAME: medai-flow-backend
-  DOCKER_CONTEXT: ./backend
-  DOCKERFILE: ./backend/Dockerfile
 
 jobs:
   lint_security:
