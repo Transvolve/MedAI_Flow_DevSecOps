@@ -62,8 +62,10 @@ class SecureRedisConnection:
             logger.error(f"Failed to establish Redis connection: {str(e)}")
             raise
 
+
 # Global variable to hold the Redis client instance, typed for clarity
 _redis_client: Optional[Redis] = None
+
 
 def get_secure_redis_client() -> Redis:
     """
@@ -84,11 +86,12 @@ def get_secure_redis_client() -> Redis:
         except redis.exceptions.ConnectionError as e:
             logger.error(f"Failed to establish initial Redis connection: {e}")
             raise e
-    
+
     if _redis_client is None:
         raise ConnectionError("Redis client is not available.")
-        
+
     return _redis_client
+
 
 def set_redis_client(client: Redis):
     """

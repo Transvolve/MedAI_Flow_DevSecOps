@@ -2,15 +2,16 @@
 from __future__ import annotations
 
 import hashlib
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from typing import Iterable, Optional, Callable
+from types import SimpleNamespace
 
 from fastapi import Depends, HTTPException, status
 from jose import jwt, JWTError
 
 from backend.app.config import settings
 from backend.app.redis_security import get_secure_redis_client
-from backend.app.auth import get_current_user, oauth2_scheme, User  # renamed top-level module
+from backend.app.auth import get_current_user, oauth2_scheme, User, create_access_token
 from backend.app.metrics import track_redis_operation
 
 # Key namespace for revoked tokens
@@ -112,9 +113,6 @@ def require_role(allowed_roles: Iterable[str]) -> Callable:
 
 # Convenience wrapper expected by tests: provide an object `jwt_manager`
 # exposing `create_token`, `revoke_token`, and `is_revoked`.
-from backend.app.auth import create_access_token
-from types import SimpleNamespace
-from datetime import timedelta
 
 
 def _create_token(data: dict) -> str:
