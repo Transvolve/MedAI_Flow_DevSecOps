@@ -122,7 +122,13 @@ jobs:
   # ---------------------------
   build_push:
     runs-on: ubuntu-latest
-    needs: test
+    needs: [lint_security, test]
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+
+    env:
+      VERSION_TAG: v${{ github.run_number }}-${{ github.sha }}
+      LATEST_TAG: latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
