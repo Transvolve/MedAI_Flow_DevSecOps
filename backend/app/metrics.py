@@ -1,5 +1,5 @@
 """Prometheus metrics for rate limiting and Redis monitoring."""
-from prometheus_client import Counter, Histogram, Gauge, REGISTRY
+from prometheus_client import Counter, Histogram, Gauge
 import time
 
 # Rate limiting metrics

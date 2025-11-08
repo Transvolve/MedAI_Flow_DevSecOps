@@ -1,5 +1,4 @@
 import time
-import pytest
 from backend.app.security.jwt_manager import jwt_manager
 
 def test_token_revocation_cycle(monkeypatch):

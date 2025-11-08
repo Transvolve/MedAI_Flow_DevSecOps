@@ -1,5 +1,5 @@
 # Authentication and JWT handling
-python-jose[cryptography]==3.3.0  # JWT token creation and validation
+python-jose[cryptography]>=3.4.0  # JWT token creation and validation
 
 # Password hashing
 passlib[bcrypt]==1.7.4  # Secure password hashing with bcrypt

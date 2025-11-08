@@ -11,9 +11,7 @@ import fakeredis
 backend_dir = Path(__file__).parent.parent
 sys.path.append(str(backend_dir))
 
-from fastapi.testclient import TestClient
 from backend.app.main import app
-from backend.app.redis_security import get_secure_redis_client
 
 @pytest.fixture
 def test_client():
@@ -52,10 +50,7 @@ def client():
         yield c
 
 import pytest
-from fastapi.testclient import TestClient
-import fakeredis
 
-from backend.app.main import app
 from backend.app.redis_security import set_redis_client
 
 @pytest.fixture(scope="session", autouse=True)

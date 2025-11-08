@@ -12,18 +12,11 @@ sys.path.append(str(backend_dir))
 
 from backend.app.main import app
 from backend.app.metrics import (
-    RATE_LIMIT_HITS,
-    RATE_LIMIT_EXCEEDED,
-    REDIS_OPERATION_LATENCY,
-    REDIS_CONNECTED,
-    REDIS_POOL_SIZE,
-    REDIS_POOL_MAXSIZE,
     track_rate_limit_hit,
     track_rate_limit_exceeded,
     track_redis_operation,
     set_redis_connected
 )
-from backend.app.redis_security import get_secure_redis_client
 
 from unittest.mock import patch, MagicMock
 

@@ -1,10 +1,6 @@
 """Rate limiting middleware implementation using slowapi with Redis backend."""
 from typing import Optional
-from fastapi import FastAPI, Request, Response
-from slowapi import Limiter, _rate_limit_exceeded_handler
-from slowapi.errors import RateLimitExceeded
-from slowapi.middleware import SlowAPIMiddleware
-from slowapi.util import get_remote_address
+from slowapi import Limiter
 from redis import Redis
 from datetime import timedelta
 import logging
