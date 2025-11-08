@@ -150,12 +150,13 @@ jobs:
         if: github.ref == 'refs/heads/main'
         run: az acr login --name "$ACR_NAME"
 
-      - name: Clean Docker contexts
-        run: docker context prune --force || true
-
-      - name: Remove stale buildx builders
+      - name: Reset Docker daemon state
         run: |
-          docker buildx ls | grep -v BUILDKIT_HOST | awk '{print $1}' | xargs -I {} docker buildx rm {} || true
+          # Remove all docker contexts and builders to ensure clean state
+          rm -rf ~/.docker/contexts || true
+          rm -rf ~/.docker/builders || true
+          # Restart docker daemon to clear any cached state
+          sudo systemctl restart docker || true
 
       - name: Docker metadata (Main)
         id: meta-main
