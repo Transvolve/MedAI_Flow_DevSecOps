@@ -16,6 +16,9 @@ fakeredis==2.19.0
 sqlalchemy==2.0.23
 psycopg2-binary==2.9.9
 
+# System monitoring
+psutil>=5.9.0
+
 # Security dependencies
 python-jose[cryptography]>=3.4.0
 passlib[bcrypt]==1.7.4
