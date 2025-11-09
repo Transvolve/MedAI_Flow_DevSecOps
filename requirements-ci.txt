@@ -10,6 +10,11 @@ httpx==0.26.0
 flake8==7.0.0
 bandit==1.7.7
 safety==2.3.5
+fakeredis==2.19.0
+
+# Database dependencies
+sqlalchemy==2.0.23
+psycopg2-binary==2.9.9
 
 # Security dependencies
 python-jose[cryptography]>=3.4.0
@@ -19,4 +24,4 @@ prometheus-client==0.17.1
 redis==5.0.1
 aioredis==2.0.1
 argon2-cffi>=23.1.0
-argon2-cffi>=23.1.0
+
