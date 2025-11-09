@@ -1,0 +1,70 @@
+# Python
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environments
+.venv
+venv/
+ENV/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+*.cover
+
+# Environment & Secrets
+.env
+.env.*
+*.env
+*.pem
+*.key
+*.crt
+AZURE_CREDENTIALS.json
+credentials.json
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Documentation
+*.md
+docs/
+compliance/
+
+# CI/CD
+.github/
+ci-cd/
+
+# Terraform
+infra/terraform/
+*.tfstate
+*.tfstate.*
+
+# Unnecessary files
+*.log
+*.pid
+*.seed
+.DS_Store
+Thumbs.db
+
+# ML models and cache
+ml/__pycache__/
+.pytest_cache/

@@ -202,6 +202,9 @@ jobs:
           push: true
           tags: ${{ steps.meta-main.outputs.tags }}
           labels: ${{ steps.meta-main.outputs.labels }}
+          no-cache: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Build & push image (Feature - GHCR)
         if: github.ref != 'refs/heads/main'
@@ -212,6 +215,9 @@ jobs:
           push: true
           tags: ${{ steps.meta-feature.outputs.tags }}
           labels: ${{ steps.meta-feature.outputs.labels }}
+          no-cache: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Show pushed tags (Main)
         if: github.ref == 'refs/heads/main'
