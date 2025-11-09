@@ -128,6 +128,8 @@ jobs:
     env:
       VERSION_TAG: v${{ github.run_number }}-${{ github.sha }}
       LATEST_TAG: latest
+      IMAGE_NAME: medai_flow_backend
+      ACR_LOGIN_SERVER: ${{ secrets.ACR_NAME }}.azurecr.io
 
     steps:
       - name: Checkout code
@@ -158,12 +160,13 @@ jobs:
 
       - name: Login to ACR
         if: github.event_name != 'pull_request'
-        env:
-          ACR_NAME: ${{ secrets.ACR_NAME }}
+        run: |
+          ACR_NAME="${{ secrets.ACR_NAME }}"
+          az acr login --name "$ACR_NAME"
 
       - name: ACR login
         if: github.ref == 'refs/heads/main'
-        run: az acr login --name "$ACR_NAME"
+        run: az acr login --name "${{ secrets.ACR_NAME }}"
 
       - name: Clean Docker contexts
         run: docker context prune --force || true
@@ -222,30 +225,12 @@ jobs:
 
       - name: Show pushed tags (Main)
         if: github.ref == 'refs/heads/main'
-
         run: |
-          az acr login --name "$ACR_NAME" --subscription ${{ fromJson(secrets.AZURE_CREDENTIALS).subscriptionId }}
+          echo "Image pushed to ACR successfully"
+          echo "Repository: ${{ env.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}"
+          echo "Tag: ${{ env.VERSION_TAG }}"
 
-      # 🧱 Cache Docker layers (inserted here)
-      - name: Cache Docker layers
-        uses: actions/cache@v4
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-
 
-      - name: Build and push image with build-push-action
-        uses: docker/build-push-action@v4
-        with:
-          context: ./backend
-          push: ${{ github.event_name != 'pull_request' }}
-          tags: |
-            ${{ secrets.ACR_NAME }}.azurecr.io/medai_flow_backend:${{ github.run_number }}
-            ${{ secrets.ACR_NAME }}.azurecr.io/medai_flow_backend:latest
-          # Use the default builder; do not attempt local cache export on runners
-          # To enable caching across runs, consider using `cache-to=type=gha` with
-          # `cache-from=type=gha` and the action's cache feature.
 
   # ---------------------------
   # AKS Deployment
