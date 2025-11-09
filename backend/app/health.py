@@ -38,10 +38,10 @@ class SystemHealth:
 
     def get_system_metrics(self) -> Dict[str, Any]:
         """Get current system resource metrics.
-        
+
         Returns:
             Dictionary containing CPU, memory, and disk usage percentages
-            
+
         Regulatory Mapping:
             - FDA 21 CFR 11: System monitoring
             - ISO 27001: Resource monitoring
@@ -60,10 +60,10 @@ class SystemHealth:
 
     def get_health_status(self) -> HealthStatus:
         """Determine overall system health status.
-        
+
         Returns:
             HealthStatus enum indicating system health
-            
+
         Status Logic:
             UNHEALTHY: CPU > 95% OR Memory > 90% OR Disk > 90%
             DEGRADED: CPU > 80% OR Memory > 75% OR Disk > 75%
@@ -88,7 +88,7 @@ class DatabaseHealth:
 
     def __init__(self, connection_string: Optional[str] = None):
         """Initialize database health checker.
-        
+
         Args:
             connection_string: Database connection URL
         """
@@ -98,20 +98,20 @@ class DatabaseHealth:
 
     def check_connection(self) -> Dict[str, Any]:
         """Check database connectivity.
-        
+
         Returns:
             Dictionary with connection status and response time
-            
+
         Regulatory Mapping:
             - FDA 21 CFR 11: Data storage availability
             - ISO 27001: Database availability
         """
         self.last_check = datetime.utcnow()
-        
+
         # TODO: Implement actual database connection check
         # This would connect to PostgreSQL and execute a simple query
         # For now, return placeholder
-        
+
         return {
             "status": "connected" if self.is_connected else "disconnected",
             "last_check": self.last_check.isoformat() + "Z",
@@ -120,7 +120,7 @@ class DatabaseHealth:
 
     def get_health_status(self) -> HealthStatus:
         """Get database health status.
-        
+
         Returns:
             HealthStatus indicating database health
         """
@@ -134,7 +134,7 @@ class RedisHealth:
 
     def __init__(self, redis_url: Optional[str] = None):
         """Initialize Redis health checker.
-        
+
         Args:
             redis_url: Redis connection URL
         """
@@ -144,20 +144,20 @@ class RedisHealth:
 
     def check_connection(self) -> Dict[str, Any]:
         """Check Redis connectivity.
-        
+
         Returns:
             Dictionary with connection status and response time
-            
+
         Regulatory Mapping:
             - FDA 21 CFR 11: Cache availability for rate limiting
             - ISO 27001: Service availability
         """
         self.last_check = datetime.utcnow()
-        
+
         # TODO: Implement actual Redis connection check
         # This would connect to Redis and execute PING command
         # For now, return placeholder
-        
+
         return {
             "status": "connected" if self.is_connected else "disconnected",
             "last_check": self.last_check.isoformat() + "Z",
@@ -166,7 +166,7 @@ class RedisHealth:
 
     def get_health_status(self) -> HealthStatus:
         """Get Redis health status.
-        
+
         Returns:
             HealthStatus indicating Redis health
         """
@@ -184,7 +184,7 @@ class HealthCheckService:
         redis_url: Optional[str] = None,
     ):
         """Initialize health check service.
-        
+
         Args:
             db_connection_string: Database connection URL
             redis_url: Redis connection URL
@@ -196,10 +196,10 @@ class HealthCheckService:
 
     def get_comprehensive_health(self) -> Dict[str, Any]:
         """Get comprehensive health check report.
-        
+
         Returns:
             Dictionary with health status of all components
-            
+
         Regulatory Mapping:
             - FDA 21 CFR 11: System health monitoring
             - ISO 13485: Product monitoring
@@ -239,10 +239,10 @@ class HealthCheckService:
 
     def is_ready(self) -> bool:
         """Check if system is ready to serve requests.
-        
+
         Returns:
             True if all components are healthy, False otherwise
-            
+
         Regulatory Mapping:
             - FDA 21 CFR 11: System readiness validation
         """
@@ -251,10 +251,10 @@ class HealthCheckService:
 
     def is_alive(self) -> bool:
         """Check if system is alive (minimal health check).
-        
+
         Returns:
             True if system is operational, False otherwise
-            
+
         Regulatory Mapping:
             - ISO 27001: Service availability
         """

@@ -121,8 +121,9 @@ class ModelVersion(Base):
     __table_args__ = (
         UniqueConstraint("model_name", "version", name="uq_model_version"),
         CheckConstraint("file_size_bytes > 0", name="ck_file_size_positive"),
-        CheckConstraint("confidence_threshold >= 0.0 AND confidence_threshold <= 1.0",
-                       name="ck_confidence_valid"),
+        CheckConstraint(
+            "confidence_threshold >= 0.0 AND confidence_threshold <= 1.0",
+            name="ck_confidence_valid"),
     )
 
     def __repr__(self) -> str:
@@ -190,8 +191,9 @@ class InferenceResult(Base):
 
     # Constraints
     __table_args__ = (
-        CheckConstraint("confidence_score >= 0.0 AND confidence_score <= 1.0",
-                       name="ck_confidence_score_valid"),
+        CheckConstraint(
+            "confidence_score >= 0.0 AND confidence_score <= 1.0",
+            name="ck_confidence_score_valid"),
         CheckConstraint("inference_latency_ms >= 0", name="ck_latency_positive"),
         CheckConstraint("preprocessing_latency_ms >= 0", name="ck_prep_latency_positive"),
     )
@@ -219,8 +221,9 @@ class ValidationResult(Base):
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
 
     # Inference Reference
-    inference_result_id = Column(String(36), ForeignKey("inference_results.id"),
-                                nullable=False)
+    inference_result_id = Column(
+        String(36), ForeignKey("inference_results.id"),
+        nullable=False)
 
     # Validation Rules Applied
     brightness_valid = Column(Boolean, nullable=False)
@@ -243,8 +246,9 @@ class ValidationResult(Base):
 
     # Constraints
     __table_args__ = (
-        CheckConstraint("validation_score >= 0.0 AND validation_score <= 1.0",
-                       name="ck_validation_score_valid"),
+        CheckConstraint(
+            "validation_score >= 0.0 AND validation_score <= 1.0",
+            name="ck_validation_score_valid"),
     )
 
     def __repr__(self) -> str:
@@ -349,8 +353,9 @@ class AuditLog(Base):
     hash_chain_verified = Column(Boolean, default=False, nullable=False)
 
     # Timestamp
-    created_at = Column(DateTime, server_default=func.now(), nullable=False,
-                       index=True)
+    created_at = Column(
+        DateTime, server_default=func.now(), nullable=False,
+        index=True)
 
     # Relationships
     user = relationship("User", back_populates="audit_logs")

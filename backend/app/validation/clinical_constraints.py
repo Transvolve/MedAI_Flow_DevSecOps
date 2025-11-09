@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 @dataclass(frozen=True)
 class ValidationResult:
     """Result of clinical constraint validation.
-    
+
     Attributes:
         passed: Whether all constraints passed
         issues: List of constraint violations
@@ -41,14 +41,14 @@ class ValidationResult:
 @dataclass(frozen=True)
 class ClinicalConstraints:
     """Clinical constraints for medical imaging validation.
-    
+
     Enforces quality, brightness, contrast, and clinical appropriateness
     constraints for medical images.
-    
+
     Regulatory Context:
         These constraints are based on clinical practice guidelines and
         FDA recommendations for medical image quality assessment.
-    
+
     Attributes:
         min_pixel_brightness: Minimum acceptable average brightness (0-255)
         max_pixel_brightness: Maximum acceptable average brightness (0-255)
@@ -72,10 +72,10 @@ class ClinicalConstraints:
 
     def validate_brightness(self, brightness: float) -> tuple[bool, Optional[str]]:
         """Validate image brightness is within clinical range.
-        
+
         Args:
             brightness: Average brightness value (0-255)
-            
+
         Returns:
             Tuple of (passed, error_message)
         """
@@ -99,10 +99,10 @@ class ClinicalConstraints:
 
     def validate_contrast(self, contrast: float) -> tuple[bool, Optional[str]]:
         """Validate image contrast meets clinical standards.
-        
+
         Args:
             contrast: Contrast ratio (higher is better)
-            
+
         Returns:
             Tuple of (passed, error_message)
         """
@@ -122,10 +122,10 @@ class ClinicalConstraints:
         self, motion_ratio: float
     ) -> tuple[bool, Optional[str]]:
         """Validate motion artifacts within acceptable limits.
-        
+
         Args:
             motion_ratio: Estimated motion artifact ratio (0-1)
-            
+
         Returns:
             Tuple of (passed, error_message)
         """
@@ -149,10 +149,10 @@ class ClinicalConstraints:
 
     def validate_noise(self, noise_ratio: float) -> tuple[bool, Optional[str]]:
         """Validate noise levels within acceptable limits.
-        
+
         Args:
             noise_ratio: Estimated noise-to-signal ratio (0-1)
-            
+
         Returns:
             Tuple of (passed, error_message)
         """
@@ -176,10 +176,10 @@ class ClinicalConstraints:
 
     def validate_quality(self, quality_score: float) -> tuple[bool, Optional[str]]:
         """Validate overall image quality score meets clinical standards.
-        
+
         Args:
             quality_score: Overall quality score (0-1)
-            
+
         Returns:
             Tuple of (passed, error_message)
         """
@@ -210,14 +210,14 @@ class ClinicalConstraints:
         quality_score: Optional[float] = None,
     ) -> ValidationResult:
         """Validate all clinical constraints.
-        
+
         Args:
             brightness: Average brightness value
             contrast: Image contrast
             motion_ratio: Motion artifact ratio
             noise_ratio: Noise-to-signal ratio
             quality_score: Overall quality score
-            
+
         Returns:
             ValidationResult with all issues
         """
@@ -255,9 +255,8 @@ class ClinicalConstraints:
             issues=issues,
             confidence_score=final_quality,
         )
-
         logger.info(
-            f"Clinical validation completed",
+            "Clinical validation completed",
             extra={
                 "passed": result.passed,
                 "issues": len(result.issues),

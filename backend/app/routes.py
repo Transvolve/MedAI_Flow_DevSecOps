@@ -113,8 +113,6 @@ class PaginatedInferenceResults(BaseModel):
     total_pages: int = Field(description="Total number of pages")
 
 
-
-
 # ============================================================================
 # Machine Learning Inference Endpoints
 # ============================================================================
@@ -124,10 +122,10 @@ class PaginatedInferenceResults(BaseModel):
 async def infer(request: InferenceRequest) -> Dict[str, Any]:
     """
     Perform single image model inference using ONNX runtime.
-    
+
     Requires authentication. Returns inference ID for result tracking and
     compliance auditing.
-    
+
     Regulatory: FDA 21 CFR 11 § 11.10 (System validation)
     """
     if ml_inference is None:
@@ -142,7 +140,7 @@ async def infer(request: InferenceRequest) -> Dict[str, Any]:
 
         image_array = np.array(request.data, dtype=np.float32)
         outputs = ml_inference.predict(image_array)
-        
+
         return {
             "outputs": outputs,
             "confidence_score": float(np.max(outputs)) if isinstance(outputs, np.ndarray) else 0.85,
@@ -157,21 +155,21 @@ async def infer(request: InferenceRequest) -> Dict[str, Any]:
 async def batch_infer(request: BatchInferenceRequest) -> Dict[str, Any]:
     """
     Perform batch inference on multiple images in a single request.
-    
+
     Supports up to 100 images per batch. Results are returned with individual
     success/failure status for each image. Useful for high-throughput scenarios.
-    
+
     Args:
         request: BatchInferenceRequest with list of up to 100 images
-    
+
     Returns:
         BatchInferenceResponse with aggregated results and per-image status
-        
+
     Regulatory: FDA 21 CFR 11 § 11.10 (System validation)
     """
     if not request.images:
         raise HTTPException(status_code=400, detail="At least one image required")
-    
+
     if len(request.images) > 100:
         raise HTTPException(status_code=400, detail="Maximum 100 images per batch")
 
@@ -233,22 +231,22 @@ async def batch_infer(request: BatchInferenceRequest) -> Dict[str, Any]:
 async def get_model_info(model_id: str) -> Dict[str, Any]:
     """
     Retrieve model metadata and information by model ID.
-    
+
     Returns comprehensive model information including architecture,
     performance metrics, validation status, and deployment info.
-    
+
     Args:
         model_id: Unique model identifier
-    
+
     Returns:
         ModelInfo with complete metadata
-        
+
     Regulatory: ISO 13485 (Configuration management)
     """
     # Stub implementation - would query database in production
     if not model_id or model_id == "invalid":
         raise HTTPException(status_code=404, detail="Model not found")
-    
+
     return {
         "model_id": model_id,
         "model_name": "ResNet50_Medical",
@@ -272,14 +270,14 @@ async def list_models(
 ) -> Dict[str, Any]:
     """
     List all available models with pagination support.
-    
+
     Args:
         skip: Number of models to skip (for pagination)
         limit: Maximum number of models to return (max 100)
-    
+
     Returns:
         Paginated list of available models
-        
+
     Regulatory: ISO 13485 (Product lifecycle management)
     """
     # Stub implementation - would query database in production
@@ -320,29 +318,29 @@ async def list_inference_results(
 ) -> Dict[str, Any]:
     """
     Retrieve inference results with pagination and filtering support.
-    
+
     Supports filtering by model, status, and user. Results are paginated
     with configurable page size (max 100 per page). Ordered by most recent first.
-    
+
     Args:
         page: Page number (1-indexed)
         page_size: Number of results per page
         model_id: Optional filter for specific model
         status: Optional filter for result status (completed, failed, etc.)
         created_by: Optional filter for user who created result
-    
+
     Returns:
         PaginatedInferenceResults with filtered/sorted results
-        
+
     Regulatory: HIPAA (Patient record management)
     """
     # Stub implementation - would query database in production
     total_results = 150  # Simulated total count
     total_pages = (total_results + page_size - 1) // page_size
-    
+
     if page > total_pages and page > 1:
         raise HTTPException(status_code=404, detail="Page not found")
-    
+
     items = [
         {
             "inference_id": f"infer_{i}",
@@ -354,7 +352,7 @@ async def list_inference_results(
         }
         for i in range(min(page_size, total_results - (page - 1) * page_size))
     ]
-    
+
     return {
         "items": items,
         "total": total_results,
@@ -368,21 +366,21 @@ async def list_inference_results(
 async def get_inference_result(inference_id: str) -> Dict[str, Any]:
     """
     Retrieve detailed inference result by ID.
-    
+
     Returns complete inference metadata, prediction, confidence scores,
     validation results, and audit information.
-    
+
     Args:
         inference_id: Unique inference result ID
-    
+
     Returns:
         Complete inference result with all metadata
-        
+
     Regulatory: FDA 21 CFR 11 § 11.70 (Audit trails)
     """
     if not inference_id or inference_id == "invalid":
         raise HTTPException(status_code=404, detail="Inference result not found")
-    
+
     return {
         "inference_id": inference_id,
         "model_id": "model_001",
@@ -426,36 +424,6 @@ def logout(
 # ============================================================================
 # Admin-Only Secure Endpoint
 # ============================================================================
-@router.get("/admin/secure", tags=["admin"], dependencies=[Depends(requires_role(["admin"]))])
-def admin_secure() -> Dict[str, Any]:
-    """
-    Example admin-only endpoint protected via role-based access control (RBAC).
-
-    Accessible only to users with role='admin'.
-    """
-    return {"ok": True, "message": "Admin access granted"}
-
-
-# -----------------------------------------------------------------------------
-# Authentication: Logout (JWT Revocation)
-# -----------------------------------------------------------------------------
-@router.post("/auth/logout", tags=["auth"])
-def logout(
-    token: str = Depends(oauth2_scheme),
-    user=Depends(get_current_user)
-):
-    """
-    Secure logout endpoint — revokes the current JWT in Redis blacklist.
-
-    Once revoked, the token becomes invalid for all subsequent requests.
-    """
-    revoke_token(token)
-    return {"detail": "Logged out successfully"}
-
-
-# -----------------------------------------------------------------------------
-# Admin-Only Secure Endpoint
-# -----------------------------------------------------------------------------
 @router.get("/admin/secure", tags=["admin"], dependencies=[Depends(requires_role(["admin"]))])
 def admin_secure() -> Dict[str, Any]:
     """

@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 class ImageValidationError(Exception):
     """Custom exception for image validation failures.
-    
+
     Attributes:
         message: Human-readable error message (safe for client response)
         error_code: Machine-readable error code for programmatic handling
@@ -32,7 +32,7 @@ class ImageValidationError(Exception):
         details: Optional[dict] = None,
     ) -> None:
         """Initialize validation error.
-        
+
         Args:
             message: Error message for client
             error_code: Unique error code
@@ -57,10 +57,10 @@ class ImageValidationError(Exception):
 
 class ImageDimensions(BaseModel):
     """Validated image dimension constraints.
-    
+
     Enforces minimum and maximum dimensions for medical images to ensure
     clinical usability and system performance.
-    
+
     Attributes:
         min_width: Minimum image width in pixels
         max_width: Maximum image width in pixels
@@ -123,19 +123,19 @@ class ImageDimensions(BaseModel):
 
 class ImageValidator:
     """Validate medical images against clinical and technical constraints.
-    
+
     Performs comprehensive validation of medical image files including:
     - File size validation
     - Format/extension checking
     - Dimension validation
     - Pixel value range validation
     - Data type compatibility
-    
+
     Regulatory Compliance:
         - IEC 62304: Validation of input data
         - ISO 14971: Risk mitigation through validation
         - FDA 21 CFR 11: Data integrity controls
-    
+
     Examples:
         >>> validator = ImageValidator(max_file_size_mb=50)
         >>> validator.validate_file_size(1024 * 100)  # 100 KB
@@ -163,11 +163,11 @@ class ImageValidator:
         supported_formats: Optional[Set[str]] = None,
     ) -> None:
         """Initialize image validator.
-        
+
         Args:
             max_file_size_mb: Maximum allowed file size in MB
             supported_formats: Override default supported formats
-            
+
         Raises:
             ValueError: If max_file_size_mb <= 0
         """
@@ -181,7 +181,7 @@ class ImageValidator:
         )
 
         logger.info(
-            f"ImageValidator initialized",
+            "ImageValidator initialized",
             extra={
                 "max_size_mb": max_file_size_mb,
                 "formats": len(self.supported_formats),
@@ -190,10 +190,10 @@ class ImageValidator:
 
     def validate_file_size(self, size_bytes: int) -> None:
         """Validate file size is within acceptable range.
-        
+
         Args:
             size_bytes: File size in bytes
-            
+
         Raises:
             ImageValidationError: If file size invalid
         """
@@ -222,13 +222,13 @@ class ImageValidator:
 
     def validate_format(self, filename: str) -> str:
         """Validate image format from filename extension.
-        
+
         Args:
             filename: Image filename with extension
-            
+
         Returns:
             File extension in uppercase
-            
+
         Raises:
             ImageValidationError: If format not supported
         """
@@ -261,12 +261,12 @@ class ImageValidator:
         constraints: Optional[ImageDimensions] = None,
     ) -> None:
         """Validate image dimensions are within constraints.
-        
+
         Args:
             width: Image width in pixels
             height: Image height in pixels
             constraints: Dimension constraints (uses defaults if None)
-            
+
         Raises:
             ImageValidationError: If dimensions invalid
         """
@@ -338,12 +338,12 @@ class ImageValidator:
         dtype: str = "uint8",
     ) -> None:
         """Validate pixel value ranges for data type.
-        
+
         Args:
             min_val: Minimum pixel value in image
             max_val: Maximum pixel value in image
             dtype: Data type identifier (uint8, uint16, float32, float64)
-            
+
         Raises:
             ImageValidationError: If values invalid for dtype
         """
@@ -399,13 +399,13 @@ class ImageValidator:
         max_ratio: float = 2.0,
     ) -> None:
         """Validate image aspect ratio.
-        
+
         Args:
             width: Image width in pixels
             height: Image height in pixels
             min_ratio: Minimum allowed ratio (width/height)
             max_ratio: Maximum allowed ratio (width/height)
-            
+
         Raises:
             ImageValidationError: If aspect ratio invalid
         """

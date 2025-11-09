@@ -5,7 +5,7 @@ and production-grade observability for healthcare applications.
 
 Regulatory Compliance:
 - FDA 21 CFR 11: Audit trail requirements
-- HIPAA: Logging and monitoring requirements  
+- HIPAA: Logging and monitoring requirements
 - ISO 27001: Event logging and monitoring
 """
 
@@ -21,13 +21,13 @@ logger = logging.getLogger(__name__)
 
 class StructuredLogger:
     """Production-grade JSON structured logger for compliance.
-    
+
     Features:
     - JSON-formatted log entries for machine parsing
     - Correlation ID tracking for request tracing
     - Automatic timestamp and logger name inclusion
     - Integration with Python logging framework
-    
+
     Examples:
         >>> log = StructuredLogger(__name__)
         >>> log.set_correlation_id("req-12345")
@@ -37,13 +37,13 @@ class StructuredLogger:
 
     def __init__(self, name: str) -> None:
         """Initialize structured logger.
-        
+
         Args:
             name: Logger name (typically __name__)
         """
         self.logger = logging.getLogger(name)
         self.correlation_id: Optional[str] = None
-        
+
         # Ensure logger propagates to root logger
         self.logger.propagate = True
 
@@ -54,12 +54,12 @@ class StructuredLogger:
         **kwargs,
     ) -> str:
         """Build JSON structured log entry.
-        
+
         Args:
             level: Log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
             message: Log message
             **kwargs: Additional fields to include in log
-            
+
         Returns:
             JSON-formatted log entry string
         """
@@ -90,21 +90,21 @@ class StructuredLogger:
 
     def set_correlation_id(self, correlation_id: str) -> None:
         """Set correlation ID for request tracing.
-        
+
         Correlation IDs enable end-to-end tracing of requests through
         all system components.
-        
+
         Args:
             correlation_id: Unique request identifier
         """
         if not correlation_id or not isinstance(correlation_id, str):
             raise ValueError("correlation_id must be a non-empty string")
-        
+
         self.correlation_id = correlation_id
 
     def debug(self, message: str, **kwargs) -> None:
         """Log debug-level message.
-        
+
         Args:
             message: Log message
             **kwargs: Additional context fields
@@ -113,7 +113,7 @@ class StructuredLogger:
 
     def info(self, message: str, **kwargs) -> None:
         """Log info-level message.
-        
+
         Args:
             message: Log message
             **kwargs: Additional context fields
@@ -122,7 +122,7 @@ class StructuredLogger:
 
     def warning(self, message: str, **kwargs) -> None:
         """Log warning-level message.
-        
+
         Args:
             message: Log message
             **kwargs: Additional context fields
@@ -131,7 +131,7 @@ class StructuredLogger:
 
     def error(self, message: str, **kwargs) -> None:
         """Log error-level message.
-        
+
         Args:
             message: Log message
             **kwargs: Additional context fields
@@ -140,7 +140,7 @@ class StructuredLogger:
 
     def critical(self, message: str, **kwargs) -> None:
         """Log critical-level message.
-        
+
         Args:
             message: Log message
             **kwargs: Additional context fields
@@ -156,10 +156,10 @@ class StructuredLogger:
         **kwargs,
     ) -> None:
         """Log audit event for compliance.
-        
+
         Audit logs are critical for regulatory compliance and security
         incident investigation.
-        
+
         Args:
             action: Action performed (e.g., LOGIN, CREATE, UPDATE, DELETE)
             resource: Resource affected (e.g., user:123, model:v1)
@@ -179,7 +179,7 @@ class StructuredLogger:
 
     def exception(self, message: str, exc_info: bool = True, **kwargs) -> None:
         """Log exception with full traceback.
-        
+
         Args:
             message: Error message
             exc_info: Include exception traceback (default: True)
@@ -193,13 +193,13 @@ class StructuredLogger:
 
 def get_logger(name: str) -> StructuredLogger:
     """Get configured structured logger instance.
-    
+
     Args:
         name: Logger name (typically __name__)
-        
+
     Returns:
         StructuredLogger instance
-        
+
     Examples:
         >>> logger = get_logger(__name__)
         >>> logger.info("Application started")

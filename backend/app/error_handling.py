@@ -56,7 +56,7 @@ class ErrorCode:
 
 class ApplicationError(Exception):
     """Base application error with error code tracking.
-    
+
     All application errors should inherit from this class to ensure
     consistent error handling and compliance logging.
     """
@@ -192,7 +192,7 @@ class ApplicationError(Exception):
         details: Optional[Dict[str, Any]] = None,
     ) -> None:
         """Initialize application error.
-        
+
         Args:
             error_code: Error code (e.g., 'VAL_001')
             message: Override default message if needed
@@ -235,7 +235,7 @@ class ApplicationError(Exception):
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert error to dictionary for API response.
-        
+
         Returns:
             Error representation safe for API response (no internal details)
         """
@@ -247,7 +247,7 @@ class ApplicationError(Exception):
 
     def log_error(self, request_id: Optional[str] = None) -> None:
         """Log error with context for auditing.
-        
+
         Args:
             request_id: Request correlation ID for tracing
         """
@@ -282,7 +282,7 @@ class ValidationError(ApplicationError):
         details: Optional[Dict[str, Any]] = None,
     ) -> None:
         """Initialize validation error.
-        
+
         Args:
             field: Field that failed validation
             message: Error message
@@ -357,7 +357,7 @@ class RateLimitError(ApplicationError):
         details: Optional[Dict[str, Any]] = None,
     ) -> None:
         """Initialize rate limit error.
-        
+
         Args:
             retry_after: Seconds to wait before retry
             details: Additional details
@@ -435,11 +435,11 @@ def handle_error(
     context: Optional[Dict[str, Any]] = None,
 ) -> ApplicationError:
     """Convert any exception to ApplicationError for consistent handling.
-    
+
     Args:
         error: Exception to convert
         context: Additional context
-        
+
     Returns:
         ApplicationError instance
     """

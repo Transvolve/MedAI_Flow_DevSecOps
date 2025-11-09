@@ -24,10 +24,10 @@ logger = logging.getLogger(__name__)
 @dataclass(frozen=True)
 class AuditEntry:
     """Immutable audit trail entry with hash-chain validation.
-    
+
     Each entry includes a cryptographic hash of the previous entry,
     creating an immutable chain that detects tampering.
-    
+
     Attributes:
         entry_id: Unique identifier for this audit entry
         timestamp: UTC timestamp when entry was created
@@ -80,7 +80,7 @@ class AuditEntry:
 
     def to_dict(self) -> dict:
         """Convert entry to dictionary.
-        
+
         Returns:
             Dictionary representation of audit entry
         """
@@ -88,7 +88,7 @@ class AuditEntry:
 
     def to_json(self) -> str:
         """Convert entry to JSON string.
-        
+
         Returns:
             JSON representation of audit entry
         """
@@ -97,10 +97,10 @@ class AuditEntry:
 
 class AuditTrail:
     """Manage immutable audit trail with hash-chain validation.
-    
+
     Maintains a sequence of audit entries with cryptographic hash chains
     to ensure integrity and detect tampering.
-    
+
     Examples:
         >>> trail = AuditTrail()
         >>> trail.log_action(
@@ -128,7 +128,7 @@ class AuditTrail:
         details: Optional[dict] = None,
     ) -> AuditEntry:
         """Log audit action to trail.
-        
+
         Args:
             action: Action performed
             resource_type: Type of resource (MODEL, USER, IMAGE, etc)
@@ -136,10 +136,10 @@ class AuditTrail:
             user_id: User who performed action
             status: Action result (SUCCESS or FAILURE)
             details: Additional context
-            
+
         Returns:
             The created AuditEntry
-            
+
         Examples:
             >>> trail = AuditTrail()
             >>> entry = trail.log_action(
@@ -177,13 +177,13 @@ class AuditTrail:
 
     def verify_integrity(self) -> bool:
         """Verify hash-chain integrity of audit trail.
-        
+
         Checks that each entry's previous_hash matches the previous entry's
         entry_hash, ensuring no tampering has occurred.
-        
+
         Returns:
             True if trail integrity verified, False if tampering detected
-            
+
         Examples:
             >>> trail = AuditTrail()
             >>> trail.log_action("LOGIN", "USER", "user1")
@@ -220,11 +220,11 @@ class AuditTrail:
         resource_id: str,
     ) -> list[AuditEntry]:
         """Get all audit entries for a specific resource.
-        
+
         Args:
             resource_type: Type of resource to filter by
             resource_id: Identifier of resource
-            
+
         Returns:
             List of matching audit entries
         """
@@ -236,10 +236,10 @@ class AuditTrail:
 
     def get_entries_by_user(self, user_id: str) -> list[AuditEntry]:
         """Get all audit entries for a specific user.
-        
+
         Args:
             user_id: User identifier
-            
+
         Returns:
             List of audit entries by user
         """
@@ -247,10 +247,10 @@ class AuditTrail:
 
     def get_entries_by_action(self, action: str) -> list[AuditEntry]:
         """Get all audit entries for a specific action type.
-        
+
         Args:
             action: Action type (LOGIN, CREATE, DELETE, etc)
-            
+
         Returns:
             List of matching audit entries
         """
@@ -258,10 +258,10 @@ class AuditTrail:
 
     def get_latest_entries(self, count: int = 10) -> list[AuditEntry]:
         """Get most recent audit entries.
-        
+
         Args:
             count: Number of entries to return
-            
+
         Returns:
             List of most recent entries (newest first)
         """
@@ -269,7 +269,7 @@ class AuditTrail:
 
     def export_json(self) -> str:
         """Export entire audit trail as JSON.
-        
+
         Returns:
             JSON representation of all entries
         """

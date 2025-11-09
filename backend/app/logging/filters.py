@@ -15,10 +15,10 @@ from typing import Dict, Pattern
 
 class PHIFilter:
     """Detect and mask PHI/PII in logs and messages.
-    
+
     Uses regular expressions to identify common PHI/PII patterns and replaces
     them with safe placeholders to prevent sensitive data exposure in logs.
-    
+
     Patterns Detected:
     - Email addresses
     - Phone numbers (10+ digits with formatting)
@@ -56,13 +56,13 @@ class PHIFilter:
     @staticmethod
     def mask_phi(text: str) -> str:
         """Mask all PHI/PII in text.
-        
+
         Args:
             text: Text that may contain PHI/PII
-            
+
         Returns:
             Text with PHI/PII replaced by safe placeholders
-            
+
         Examples:
             >>> PHIFilter.mask_phi("Email: john@example.com")
             "Email: [REDACTED_EMAIL]"
@@ -80,13 +80,13 @@ class PHIFilter:
     @staticmethod
     def contains_phi(text: str) -> bool:
         """Check if text contains PHI/PII.
-        
+
         Args:
             text: Text to check
-            
+
         Returns:
             True if PHI/PII detected
-            
+
         Examples:
             >>> PHIFilter.contains_phi("SSN: 123-45-6789")
             True
@@ -103,13 +103,13 @@ class PHIFilter:
     @staticmethod
     def get_phi_types(text: str) -> list[str]:
         """Identify types of PHI/PII in text.
-        
+
         Args:
             text: Text to analyze
-            
+
         Returns:
             List of PHI/PII types found
-            
+
         Examples:
             >>> PHIFilter.get_phi_types("Email: john@example.com, Phone: 555-1234")
             ["email", "phone"]
@@ -127,17 +127,17 @@ class PHIFilter:
 
 class AuditLogFilter(PHIFilter):
     """Filter for audit logs with PHI/PII detection and masking.
-    
+
     Extends PHIFilter with audit-specific functionality for compliance logging.
     """
 
     @staticmethod
     def filter_audit_entry(entry: dict) -> tuple[dict, bool]:
         """Filter audit log entry for PHI/PII.
-        
+
         Args:
             entry: Audit log entry dictionary
-            
+
         Returns:
             Tuple of (filtered_entry, has_phi)
         """

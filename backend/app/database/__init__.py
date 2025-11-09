@@ -25,7 +25,7 @@ from datetime import datetime, timedelta
 import logging
 import os
 
-from sqlalchemy import create_engine, Engine, event, pool
+from sqlalchemy import create_engine, Engine, event
 from sqlalchemy.orm import sessionmaker, Session, scoped_session
 from sqlalchemy.pool import QueuePool
 from sqlalchemy.exc import SQLAlchemyError, OperationalError
@@ -307,7 +307,7 @@ def get_db_manager() -> DatabaseManager:
     Raises:
         RuntimeError: If database manager not initialized
     """
-    global _db_manager
+    global _db_manager  # noqa: F824
     if _db_manager is None:
         raise RuntimeError("Database manager not initialized. Call init_db() first.")
     return _db_manager
