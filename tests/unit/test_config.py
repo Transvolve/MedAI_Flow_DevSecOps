@@ -24,7 +24,7 @@ class TestSettingsDefaults:
     def test_app_version_default(self):
         """Test app version has correct default."""
         settings = Settings()
-        assert settings.app_version == "1.0"
+        assert settings.app_version == "2.0.0"
 
     def test_jwt_algorithm_default(self):
         """Test JWT algorithm defaults to HS256."""
