@@ -7,7 +7,7 @@ import secrets
 
 class Settings(BaseSettings):
     app_name: str = Field(default="MedAI Flow Backend")
-    app_version: str = Field(default="1.0")
+    app_version: str = Field(default="2.0.0")
 
     # Security Settings
     jwt_secret_key: str = Field(default_factory=lambda: secrets.token_urlsafe(32))
