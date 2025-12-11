@@ -32,7 +32,7 @@ WORKDIR /app
 COPY --from=builder /root/.local /home/medai/.local
 
 # Copy application code
-COPY --chown=medai:medai app /app
+COPY --chown=medai:medai backend/app /app
 
 # Set PATH for user-installed packages
 ENV PATH=/home/medai/.local/bin:$PATH
