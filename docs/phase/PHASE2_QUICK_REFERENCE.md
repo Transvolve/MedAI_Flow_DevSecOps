@@ -364,28 +364,28 @@ Test Examples:
 
 """
 FDA 21 CFR 11:
-  [OK] Validation: Input validation requirements (Part 11.100)
-  [OK] Logging: Audit trail requirements (Part 11.10)
-  [OK] Error Handling: Error logging requirements (Part 11.192)
+  ✅ Validation: Input validation requirements (Part 11.100)
+  ✅ Logging: Audit trail requirements (Part 11.10)
+  ✅ Error Handling: Error logging requirements (Part 11.192)
 
 HIPAA:
-  [OK] Validation: Data integrity validation
-  [OK] Logging: Comprehensive audit logs (164.312)
-  [OK] PHI Protection: Filter and mask PHI in logs
-  [OK] Error Handling: No PHI in error messages
+  ✅ Validation: Data integrity validation
+  ✅ Logging: Comprehensive audit logs (164.312)
+  ✅ PHI Protection: Filter and mask PHI in logs
+  ✅ Error Handling: No PHI in error messages
 
 ISO 27001:
-  [OK] Logging: Security event logging and monitoring (A.12.4.1)
-  [OK] Audit: Information security logs (A.12.4.3)
-  [OK] Error Handling: Security-related error handling
+  ✅ Logging: Security event logging and monitoring (A.12.4.1)
+  ✅ Audit: Information security logs (A.12.4.3)
+  ✅ Error Handling: Security-related error handling
 
 IEC 62304:
-  [OK] Validation: Software validation requirements (8.2.1)
-  [OK] Testing: Comprehensive unit tests (8.3.5)
+  ✅ Validation: Software validation requirements (8.2.1)
+  ✅ Testing: Comprehensive unit tests (8.3.5)
 
 ISO 14971:
-  [OK] Risk Analysis: Error handling for risk mitigation
-  [OK] Control: Validation and testing controls
+  ✅ Risk Analysis: Error handling for risk mitigation
+  ✅ Control: Validation and testing controls
 """
 
 
@@ -566,4 +566,3 @@ Issue: Performance degradation with audit trail
   Cause: Too many entries accumulating in memory
   Solution: Implement trail export/cleanup or use database backend
 """
-
