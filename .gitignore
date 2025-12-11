@@ -136,6 +136,17 @@ docs/*.bak
 docs/debug.txt
 
 # ---------------------------------------------------------
+# Commercialization & Career Strategy (Local Only - NEVER COMMIT)
+# ---------------------------------------------------------
+docs/commercialization/COMMERCIALIZATION_STRATEGY.md
+docs/commercialization/SERVICE_OFFERINGS_PRICING.md
+docs/commercialization/LINKEDIN_POSITIONING_GUIDE.md
+docs/commercialization/JOB_APPLICATION_STRATEGY.md
+docs/commercialization/CASE_STUDY_TEMPLATE.md
+docs/commercialization/STARTUP_FOUNDER_ROADMAP.md
+docs/commercialization/THOUGHT_LEADERSHIP_PLAN.md
+
+# ---------------------------------------------------------
 # 🗂 Misc
 # ---------------------------------------------------------
 tmp/
