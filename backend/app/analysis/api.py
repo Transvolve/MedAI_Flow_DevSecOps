@@ -296,6 +296,11 @@ async def analyze_file(request: AnalysisRequest) -> AnalysisResponse:
     try:
         analyzer = create_analyzer(request.analyzer_type)
         result = analyzer.analyze_file(request.path)
+        
+        # Check if file was found
+        if "not found" in " ".join(result.errors).lower():
+            raise FileNotFoundError(f"File not found: {request.path}")
+        
         return _convert_analysis_result(result)
     except FileNotFoundError:
         raise HTTPException(

@@ -21,6 +21,7 @@ from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
 from backend.app.config import settings
 from backend.app.middleware import setup_middleware
 from backend.app.routes import router
+from backend.app.analysis.api import router as analysis_router
 from backend.app.auth import (
     Token,
     User,
@@ -70,6 +71,7 @@ async def get_metrics():
 # -----------------------------------------------------------------------------
 setup_middleware(app)
 app.include_router(router)
+app.include_router(analysis_router)
 
 # -----------------------------------------------------------------------------
 # Authentication Endpoints
