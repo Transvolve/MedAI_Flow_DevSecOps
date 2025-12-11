@@ -150,7 +150,7 @@ class AnalysisResult:
 class CodeAnalyzer(ABC):
     """
     Abstract base class for code analyzers.
-    
+
     Implementations:
     - LocalAnalyzer: Uses flake8, bandit, pytest coverage (no external dependencies)
     - LDRAAdapter: Uses LDRA Test Master (when licensed)
@@ -241,7 +241,7 @@ class CodeAnalyzer(ABC):
 class TestAutomator(ABC):
     """
     Abstract base class for test generation.
-    
+
     Implementations:
     - LDRAAdapter: Generates tests from code (when LDRA licensed)
     - LocalAutomator: Generates test stubs
@@ -291,7 +291,7 @@ class TestAutomator(ABC):
 class TraceabilityMapper(ABC):
     """
     Abstract base class for requirements traceability.
-    
+
     Implementations:
     - LDRAAdapter: Full traceability matrix from LDRA
     - LocalMapper: Manual/automated mapping

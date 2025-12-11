@@ -14,7 +14,7 @@ Supports:
 
 Usage:
     from backend.app.analysis import get_available_analyzer
-    
+
     analyzer = get_available_analyzer(preferred="local")  # or "ldra"
     result = analyzer.analyze_file("backend/app/main.py")
     print(result)

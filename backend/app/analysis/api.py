@@ -221,7 +221,7 @@ def _convert_analysis_result(result: AnalysisResult) -> AnalysisResponse:
             )
             for v in result.violations
         ]
-    
+
     complexity = None
     if result.complexity:
         complexity = ComplexityMetricsResponse(
@@ -234,7 +234,7 @@ def _convert_analysis_result(result: AnalysisResult) -> AnalysisResponse:
             max_function_complexity=result.complexity.max_function_complexity,
             maintainability_index=result.complexity.maintainability_index,
         )
-    
+
     coverage = None
     if result.coverage:
         coverage = CoverageMetricsResponse(
@@ -248,7 +248,7 @@ def _convert_analysis_result(result: AnalysisResult) -> AnalysisResponse:
             missing_lines=result.coverage.missing_lines,
             missing_branches=result.coverage.missing_branches,
         )
-    
+
     return AnalysisResponse(
         analyzer=result.analyzer_name,
         file=str(result.file_path),
@@ -297,20 +297,20 @@ async def analyze_file(request: AnalysisRequest) -> AnalysisResponse:
         analyzer = create_analyzer(request.analyzer_type)
         result = analyzer.analyze_file(request.path)
         return _convert_analysis_result(result)
-    except FileNotFoundError as e:
+    except FileNotFoundError:
         raise HTTPException(
             status_code=404,
             detail=f"File not found: {request.path}"
         )
-    except ValueError as e:
+    except ValueError:
         raise HTTPException(
             status_code=400,
-            detail=str(e)
+            detail="Invalid file request"
         )
-    except Exception as e:
+    except Exception as analysis_error:
         raise HTTPException(
             status_code=500,
-            detail=f"Analysis failed: {str(e)}"
+            detail=f"Analysis failed: {str(analysis_error)}"
         )
 
 
@@ -347,20 +347,20 @@ async def analyze_directory(request: AnalysisRequest) -> AnalysisResponse:
         analyzer = create_analyzer(request.analyzer_type)
         result = analyzer.analyze_directory(request.path, recursive=request.recursive)
         return _convert_analysis_result(result)
-    except FileNotFoundError as e:
+    except FileNotFoundError:
         raise HTTPException(
             status_code=404,
             detail=f"Directory not found: {request.path}"
         )
-    except ValueError as e:
+    except ValueError:
         raise HTTPException(
             status_code=400,
-            detail=str(e)
+            detail="Invalid directory request"
         )
-    except Exception as e:
+    except Exception as analysis_error:
         raise HTTPException(
             status_code=500,
-            detail=f"Analysis failed: {str(e)}"
+            detail=f"Analysis failed: {str(analysis_error)}"
         )
 
 
@@ -410,15 +410,15 @@ async def get_metrics(request: MetricsRequest) -> MetricsResponse:
                 maintainability_index=metrics.maintainability_index,
             ),
         )
-    except FileNotFoundError as e:
+    except FileNotFoundError:
         raise HTTPException(
             status_code=404,
             detail=f"File not found: {request.path}"
         )
-    except Exception as e:
+    except Exception as analysis_error:
         raise HTTPException(
             status_code=500,
-            detail=f"Metrics calculation failed: {str(e)}"
+            detail=f"Analysis failed: {str(analysis_error)}"
         )
 
 
@@ -456,16 +456,16 @@ async def generate_report(request: ReportRequest) -> ReportResponse:
     """
     try:
         analyzer = create_analyzer(request.analyzer_type)
-        
+
         # Analyze first
         if Path(request.path).is_dir():
             result = analyzer.analyze_directory(request.path, recursive=True)
         else:
             result = analyzer.analyze_file(request.path)
-        
+
         # Generate report
         report = analyzer.generate_compliance_report(output_format=request.output_format)
-        
+
         return ReportResponse(
             file=request.path,
             timestamp=datetime.utcnow().isoformat(),
@@ -559,7 +559,7 @@ async def analyze_batch(
     try:
         analyzer = create_analyzer(analyzer_type)
         results = []
-        
+
         for path in paths:
             try:
                 result = analyzer.analyze_file(path)
@@ -577,12 +577,12 @@ async def analyze_batch(
                         errors=[f"Analysis failed: {str(e)}"],
                     )
                 )
-        
+
         return results
-    except Exception as e:
+    except Exception as batch_error:
         raise HTTPException(
             status_code=500,
-            detail=f"Batch analysis failed: {str(e)}"
+            detail=f"Batch analysis failed: {str(batch_error)}"
         )
 
 

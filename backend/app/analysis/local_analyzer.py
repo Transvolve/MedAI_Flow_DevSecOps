@@ -265,7 +265,7 @@ class LocalAnalyzer(CodeAnalyzer):
 
         try:
             # Run pytest with coverage
-            result = subprocess.run(
+            subprocess.run(
                 [
                     "pytest",
                     source_path,
@@ -279,7 +279,6 @@ class LocalAnalyzer(CodeAnalyzer):
             )
 
             # Parse coverage JSON
-            coverage_file = Path(self.project_root) / ".coverage"
             coverage_json = Path(self.project_root) / "coverage.json"
 
             if coverage_json.exists():

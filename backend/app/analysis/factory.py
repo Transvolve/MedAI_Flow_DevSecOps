@@ -11,6 +11,7 @@ Enables clean architecture:
 from typing import Any, Dict, Literal, Optional
 
 from .interfaces import CodeAnalyzer
+from .local_analyzer import LocalAnalyzer
 
 
 def create_analyzer(
@@ -174,7 +175,6 @@ class AnalyzerFactory:
 
 
 # Register default analyzers
-from .local_analyzer import LocalAnalyzer
 AnalyzerFactory.register("local", LocalAnalyzer)
 
 # LDRA will be registered when available
