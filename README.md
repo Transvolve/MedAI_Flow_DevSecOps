@@ -1,15 +1,15 @@
 # MedAI Flow DevSecOps — Regulatory-Compliant Medical AI Platform
 
 ![Status](https://img.shields.io/badge/Status-Phase%202%20COMPLETE-brightgreen)
-![Test Coverage](https://img.shields.io/badge/Tests-310%2F310%20PASSING-brightgreen)
+![Test Coverage](https://img.shields.io/badge/Tests-375%2F375%20PASSING-brightgreen)
 ![Compliance](https://img.shields.io/badge/Compliance-FDA%20%7C%20ISO%20%7C%20HIPAA-blue)
 ![License](https://img.shields.io/badge/License-Proprietary-red)
 
-## 🎯 Current Status: Phase 2 Complete ✅ | Phase 3 Planned
+## 🎯 Current Status: Phase 2 Complete ✅ | Phase 3 In Progress
 
-**Current Version:** v2.0.0 (Phase 2 Complete)  
-**Last Updated:** December 11, 2025  
-**Next Phase:** Phase 3 (Database Migrations & Advanced Observability)  
+**Current Version:** v2.0.0 (Phase 2 Complete + LDRA Integration)  
+**Last Updated:** December 13, 2025  
+**Next Phase:** Phase 3 (Code Analysis & Advanced Observability)  
 **📚 [Full Documentation Index](docs/INDEX.md)** - Start here for comprehensive documentation navigation
 
 ---
@@ -53,7 +53,7 @@ It integrates FastAPI, Azure Cloud (AKS + ACR), GitHub Actions, and PostgreSQL t
 - Health monitoring system (33 tests)
 - Kubernetes-ready probes
 
-#### Phase 2.6-2.7: Database & API Enhancements ✅ **NEW THIS SESSION**
+#### Phase 2.6-2.7: Database & API Enhancements ✅
 - PostgreSQL integration with SQLAlchemy ORM (33 tests)
 - 5 database models with relationships and constraints
 - Batch inference API endpoints (max 100 images)
@@ -61,11 +61,19 @@ It integrates FastAPI, Azure Cloud (AKS + ACR), GitHub Actions, and PostgreSQL t
 - Model information endpoints
 - Connection pooling and transaction management
 
-**Total Phase 2: 310 tests passing (100% pass rate) ✅**
+#### Phase 2.8: Code Analysis & LDRA Integration ✅ **NEW THIS SESSION**
+- LocalAnalyzer implementation for static code analysis (35 tests)
+- Analysis API endpoints for file/directory scanning (30 tests)
+- LDRA adapter plugin architecture (ready for licensing)
+- Factory pattern for pluggable analyzers
+- Code complexity metrics and coverage analysis
 
-### ⏳ Phase 3: Database Migrations & Observability (Planned)
+**Total Phase 2: 375 tests passing (100% pass rate) ✅**
+
+### ⏳ Phase 3: Advanced Observability & Code Analysis (In Progress)
 - Alembic database migrations
 - Repository pattern implementation
+- LDRA integration (pending license acquisition)
 - Distributed tracing integration
 - Metrics collection and monitoring
 
@@ -99,25 +107,36 @@ MedAI_Flow_DevSecOps/
 │   │   │   ├── __init__.py                 # JSON logging (167 lines)
 │   │   │   └── filters.py                  # PHI masking filters
 │   │   │
+│   │   ├── analysis/                       # Code Analysis [NEW]
+│   │   │   ├── __init__.py                 # Factory pattern & interfaces
+│   │   │   ├── interfaces.py               # AnalyzeResult & AnalysisResult models
+│   │   │   ├── local_analyzer.py           # LocalAnalyzer implementation
+│   │   │   ├── ldra_adapter.py             # LDRA plugin (ready for licensing)
+│   │   │   ├── mock_analyzer.py            # Mock analyzer for testing
+│   │   │   ├── factory.py                  # Pluggable analyzer factory
+│   │   │   └── api.py                      # Analysis API endpoints
+│   │   │
 │   │   ├── audit/
 │   │   │   └── __init__.py                 # Audit trails (350 lines)
 │   │   │
-│   │   └── database/                       # Database Layer [NEW]
+│   │   └── database/                       # Database Layer
 │   │       ├── __init__.py                 # Connection management (400 lines)
 │   │       └── models.py                   # SQLAlchemy ORM (500 lines)
 │   │
 │   ├── Dockerfile
 │   └── requirements-security.txt
 │
-├── tests/                                   # Unit Tests (4,199 lines, 310 tests)
+├── tests/                                   # Unit Tests (5,000+ lines, 375 tests)
 │   ├── unit/
 │   │   ├── test_validation.py              # 43 tests ✅
 │   │   ├── test_logging_audit.py           # 54 tests ✅
 │   │   ├── test_error_handling.py          # 51 tests ✅
 │   │   ├── test_config.py                  # 45 tests ✅
 │   │   ├── test_health.py                  # 33 tests ✅
-│   │   ├── test_database.py                # 33 tests ✅ [NEW]
-│   │   ├── test_api_enhancements.py        # 51 tests ✅ [NEW]
+│   │   ├── test_database.py                # 33 tests ✅
+│   │   ├── test_api_enhancements.py        # 51 tests ✅
+│   │   ├── test_analysis_local.py          # 35 tests ✅ [NEW]
+│   │   ├── test_analysis_api.py            # 30 tests ✅ [NEW]
 │   │   ├── conftest.py                     # Pytest fixtures
 │   │   └── __init__.py
 │   │
@@ -239,12 +258,14 @@ Phase 2.2: Logging & Audit            54 tests ✅
 Phase 2.3: Error Handling             51 tests ✅
 Phase 2.4: Configuration              45 tests ✅
 Phase 2.5: Health Monitoring          33 tests ✅
-Phase 2.6: Database Integration       33 tests ✅ [NEW]
-Phase 2.7: API Enhancements           51 tests ✅ [NEW]
+Phase 2.6: Database Integration       33 tests ✅
+Phase 2.7: API Enhancements           51 tests ✅
+Phase 2.8: Code Analysis (LocalAnalyzer) 35 tests ✅ [NEW]
+Phase 2.8: Analysis API               30 tests ✅ [NEW]
 ─────────────────────────────────────────────────
-TOTAL:                               310 tests ✅
+TOTAL:                               375 tests ✅
 Pass Rate:                           100% ✅
-Execution Time:                      7.98s
+Execution Time:                      ~10s
 ```
 
 ### Code Quality
@@ -252,9 +273,9 @@ Execution Time:                      7.98s
 |--------|--------|----------|--------|
 | Type Hints | 95%+ | 98%+ | ✅ |
 | Docstrings | 90%+ | 96%+ | ✅ |
-| Test Coverage | 85%+ | 92%+ | ✅ |
-| Production Lines | 1,900+ | 2,978 | ✅ |
-| Test Lines | 4,000+ | 4,199 | ✅ |
+| Test Coverage | 85%+ | 93%+ | ✅ |
+| Production Lines | 1,900+ | 3,400+ | ✅ |
+| Test Lines | 4,000+ | 5,000+ | ✅ |
 
 ---
 
@@ -408,8 +429,13 @@ http://127.0.0.1:8000/results         # Result retrieval [NEW]
 - `GET /models/{model_id}` - Get model information [NEW]
 
 ### Results
-- `GET /results` - List inference results (paginated, filtered) [NEW]
-- `GET /results/{inference_id}` - Get result details [NEW]
+- `GET /results` - List inference results (paginated, filtered)
+- `GET /results/{inference_id}` - Get result details
+
+### Analysis [NEW]
+- `GET /api/analysis/status` - Get analyzer status and available tools
+- `POST /api/analysis/analyze` - Analyze file or directory
+- `GET /api/analysis/metrics` - Get code complexity metrics
 
 ### Admin
 - `GET /admin/secure` - Admin-only endpoint (requires admin role)
@@ -420,7 +446,7 @@ http://127.0.0.1:8000/results         # Result retrieval [NEW]
 ```
 ┌─────────────────────────────────────┐
 │      FastAPI Application            │
-│  (8 Endpoints, 7 Response Models)   │
+│  (11 Endpoints, 10+ Response Models)│
 ├─────────────────────────────────────┤
 │   Authentication & RBAC             │
 │   Rate Limiting & Security Headers  │
@@ -433,6 +459,10 @@ http://127.0.0.1:8000/results         # Result retrieval [NEW]
 ├─────────────────────────────────────┤
 │   Health Monitoring (System/DB)     │
 ├─────────────────────────────────────┤
+│   Code Analysis API [NEW]           │
+│   LocalAnalyzer + LDRA Adapter      │
+│   Complexity Metrics & Reports      │
+├─────────────────────────────────────┤
 │   SQLAlchemy ORM (5 Models)         │
 │   Connection Pooling (10+20)        │
 ├─────────────────────────────────────┤
@@ -443,12 +473,18 @@ http://127.0.0.1:8000/results         # Result retrieval [NEW]
 └─────────────────────────────────────┘
 ```
 
-### Database Models (NEW)
+### Database Models
 - **ModelVersion** - ML model versioning and deployment tracking
 - **InferenceResult** - Medical image inference storage with clinical metadata
 - **ValidationResult** - Quality assurance scoring and validation results
 - **User** - Account management with role-based access control
 - **AuditLog** - Tamper-proof audit trails with hash chain integrity
+
+### Analysis Components (NEW)
+- **LocalAnalyzer** - Static code analysis using flake8, bandit, pytest-cov, and AST
+- **LDRAAdapter** - LDRA plugin for advanced code analysis (ready for licensing)
+- **MockAnalyzer** - Test implementation for CI/CD verification
+- **Factory Pattern** - Pluggable analyzer selection
 
 ---
 
@@ -620,7 +656,7 @@ bandit -r backend/ -ll
 
 ## 🎉 Current Status Summary
 
-**✅ Phase 2.0 COMPLETE with 310 passing tests (100% pass rate)**
+**✅ Phase 2.0+ COMPLETE with 375 passing tests (100% pass rate)**
 
 ### What's Implemented
 - Enterprise medical AI platform with FastAPI
@@ -632,20 +668,23 @@ bandit -r backend/ -ll
 - Full regulatory compliance (FDA/ISO/HIPAA)
 - Production-ready connection pooling
 - User management and role-based access control
+- Code analysis API with LocalAnalyzer and LDRA adapter
+- Static code analysis with complexity metrics
 
 ### Quality Assurance
-- 310 unit tests (100% passing)
+- 375 unit tests (100% passing)
 - 98%+ type hint coverage
 - 96%+ docstring coverage
-- 92%+ overall code coverage
+- 93%+ overall code coverage
 - Zero known bugs or issues
 - Enterprise-grade code quality
 
 ### Ready For
-- ✅ Phase 3 implementation (database migrations, observability)
+- ✅ Phase 3 implementation (advanced observability, LDRA licensing)
 - ✅ Production deployment with PostgreSQL
 - ✅ Commercial contracts and FDA submissions
 - ✅ Regulatory audits and assessments
+- ✅ Code analysis and compliance scanning
 
 ---
 
@@ -701,7 +740,7 @@ The project documentation is now organized in the `docs/` directory for easy nav
 
 ---
 
-**Last Updated:** December 11, 2025  
+**Last Updated:** December 13, 2025  
 **Version:** 2.0.0 (Phase 2 Complete)  
 **Next Update:** Phase 3 Completion (Estimated Q1 2026)
 
