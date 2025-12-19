@@ -1,5 +1,15 @@
 # MedAI Flow DevSecOps — Regulatory-Compliant Medical AI Platform
 
+<p align="center">
+  <img src="assets/TVC_Logo_181225.png" 
+       alt="Transvolve Consultancy Limited Logo"
+       width="220"/>
+</p>
+
+<h2 align="center">Transvolve Consultancy Limited</h2>
+<p align="center"><em>Transform + Evolve = Transvolve</em></p>
+
+
 ![Status](https://img.shields.io/badge/Status-Phase%202%20COMPLETE-brightgreen)
 ![Test Coverage](https://img.shields.io/badge/Tests-375%2F375%20PASSING-brightgreen)
 ![Compliance](https://img.shields.io/badge/Compliance-FDA%20%7C%20ISO%20%7C%20HIPAA-blue)
@@ -877,3 +887,7 @@ Please ensure commits maintain compliance traceability and secure coding standar
 Dr. Mehul Pancholi, PhD (Biomedical Engineering)
 Senior System & Software Engineer | Embedded IoT | AI/ML | Medical Device DevSecOps
 London, UK | LinkedIn: https://www.linkedin.com/in/mehul-pancholi-284453b/ 
+---
+
+© Transvolve Consultancy Limited.  
+The Transvolve name, logo, and brand assets are proprietary and may not be reused without permission.
