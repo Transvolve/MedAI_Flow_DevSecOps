@@ -1,7 +1,7 @@
 # Software Test Report (STR)
 
-**Document Version:** 2.0  
-**Date:** November 9, 2025  
+**Document Version:** 3.0  
+**Date:** January 8, 2026  
 **Project:** MedAI Flow DevSecOps  
 **Classification:** FDA Class II Medical Device Software
 
@@ -9,10 +9,10 @@
 
 ## Executive Summary
 
-### Test Status: ALL TESTS PASSING (375/375)
+### Test Status: ALL TESTS PASSING (381/381)
 
-**Total Tests Executed:** 375  
-**Pass Rate:** 100% (375 passing, 0 failing)  
+**Total Tests Executed:** 381  
+**Pass Rate:** 100% (381 passing, 0 failing)  
 **Execution Time:** 11.23 seconds  
 **Test Coverage:** 92%+ estimated code coverage  
 **Code Quality:** 98%+ type hints, 96%+ docstrings
@@ -35,7 +35,8 @@ This test report documents the comprehensive unit and integration test coverage 
 | **2.6** | Database Integration | 33 | 33 | PASS | 91%+ |
 | **2.7** | API Enhancements | 51 | 51 | PASS | 90%+ |
 | **2.8** | Code Analysis | 65 | 65 | PASS | 90%+ |
-| **TOTAL** | **All Phases** | **375** | **375** | **PASS** | **92%+** |
+| **3.0** | Regulatory Validation | 6 | 6 | PASS | 100% |
+| **TOTAL** | **All Phases** | **381** | **381** | **PASS** | **92%+** |
 
 ---
 
@@ -95,6 +96,14 @@ This test report documents the comprehensive unit and integration test coverage 
 - Endpoints Tested: /infer, /infer/batch, /models, /results
 - Result: 51/51 PASSING
 
+### 8. Regulatory Compliance Tests (Phase 3.0 - 6 tests) [NEW]
+- Audit Log capability verification
+- Cryptographic algorithm strength (HS256/RS256)
+- Session timeout enforcement (<60m)
+- HTTPS enforcement check
+- Default-deny architecture check
+- Result: 6/6 PASSING
+
 ---
 
 ## Quality Metrics
@@ -144,6 +153,14 @@ This test report documents the comprehensive unit and integration test coverage 
 ### HIPAA Requirements
 ✅ **164.312(b) Audit Controls** - Audit logging tests passed
 ✅ **164.312(e)(2) De-identification** - PHI masking tests verified
+
+### IEC 81001-5-1 Health Software Security
+✅ **Clause 5.4 Implementation** - Audit logging & Crypto tests passed
+✅ **Clause 5.3 Architecture** - Default Deny policy verified
+
+### AAMI TIR57 Medical Device Security
+✅ **Risk Control** - Session expiration (Risk Mitigation T-01) verified
+✅ **Data Protection** - Encryption standards verified
 
 ---
 
