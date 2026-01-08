@@ -10,16 +10,16 @@
 <p align="center"><em>Transform + Evolve = Transvolve</em></p>
 
 
-![Status](https://img.shields.io/badge/Status-Phase%202%20COMPLETE-brightgreen)
-![Test Coverage](https://img.shields.io/badge/Tests-375%2F375%20PASSING-brightgreen)
-![Compliance](https://img.shields.io/badge/Compliance-FDA%20%7C%20ISO%20%7C%20HIPAA-blue)
+![Status](https://img.shields.io/badge/Status-Phase%203.0%20COMPLETE-brightgreen)
+![Test Coverage](https://img.shields.io/badge/Tests-381%2F381%20PASSING-brightgreen)
+![Compliance](https://img.shields.io/badge/Compliance-FDA%20%7C%20IEC%20%7C%20NIST-blue)
 ![License](https://img.shields.io/badge/License-Proprietary-red)
 
-## 🎯 Current Status: Phase 2 Complete ✅ | Phase 3 In Progress
+## 🎯 Current Status: Phase 3.0 Regulatory Compliance ✅ | Phase 3.1 Observability In Progress
 
-**Current Version:** v2.0.0 (Phase 2 Complete + LDRA Integration)  
+**Current Version:** v3.0.0 (Regulatory Compliance Complete)  
 **Last Updated:** January 8, 2026  
-**Next Phase:** Phase 3 (Code Analysis & Advanced Observability)  
+**Next Phase:** Phase 3.1 (Advanced Observability & Tracing)  
 **📚 [Full Documentation Index](docs/INDEX.md)** - Start here for comprehensive documentation navigation
 
 ---
@@ -79,6 +79,14 @@ It integrates FastAPI, Azure Cloud (AKS + ACR), GitHub Actions, and PostgreSQL t
 - Code complexity metrics and coverage analysis
 
 **Total Phase 2: 375 tests passing (100% pass rate) ✅**
+
+### ✅ Phase 3.0: Regulatory Compliance Upgrade (COMPLETE)
+- **IEC 81001-5-1 Security Plan**: Secure SDLC fully documented
+- **AAMI TIR57/SW96**: Security Risk Management File (STRIDE Threat Modeling)
+- **NIST CSF Mapping**: Core Functions mapped to controls
+- **Regulatory Strategy**: Comprehensive roadmap (FDA/EU MDR)
+- **New Regulatory Tests**: Audit logs, crypto strength, session security (6 tests)
+- **Total Phase 3.0: 6 tests passing (100% pass rate) ✅**
 
 ### ⏳ Phase 3: Advanced Observability & Code Analysis (In Progress)
 - Alembic database migrations
@@ -272,10 +280,11 @@ Phase 2.6: Database Integration       33 tests ✅
 Phase 2.7: API Enhancements           51 tests ✅
 Phase 2.8: Code Analysis (LocalAnalyzer) 35 tests ✅ [NEW]
 Phase 2.8: Analysis API               30 tests ✅ [NEW]
+Phase 3.0: Regulatory Validation      6 tests  ✅ [NEW]
 ─────────────────────────────────────────────────
-TOTAL:                               375 tests ✅
+TOTAL:                               381 tests ✅
 Pass Rate:                           100% ✅
-Execution Time:                      ~10s
+Execution Time:                      ~11s
 ```
 
 ### Code Quality
@@ -317,6 +326,22 @@ Execution Time:                      ~10s
 ### ✅ HIPAA (Health Insurance Portability & Accountability)
 - **164.312(b) Audit Controls** - Complete audit logging
 - **164.312(e)(2) De-identification** - Patient ID de-identification
+- **Status:** ✅ **FULLY COMPLIANT**
+
+### ✅ IEC 81001-5-1 (Health Software Security) [NEW]
+- **Clause 5.3 Architecture** - Defense-in-depth, Default Deny
+- **Clause 5.4 Implementation** - Secure coding standards, SAST
+- **Clause 5.8 Release** - SBOM, Immutable containers
+- **Status:** ✅ **FULLY COMPLIANT**
+
+### ✅ AAMI TIR57 (Medical Device Security Risk Management) [NEW]
+- **Asset Inventory** - Critical assets identified
+- **Threat Modeling** - STRIDE analysis completed
+- **Risk Control** - Mitigation measures verified (Encryption, MFA)
+- **Status:** ✅ **FULLY COMPLIANT**
+
+### ✅ NIST Cybersecurity Framework (CSF) [NEW]
+- **Identify/Protect/Detect/Respond/Recover** - All functions mapped
 - **Status:** ✅ **FULLY COMPLIANT**
 
 ---
@@ -575,7 +600,11 @@ Health Check:            <100ms
 
 Comprehensive compliance documentation is maintained in the `compliance/` directory:
 
-- **ISMS_CONTROLS_27001.md** - ISO 27001 information security controls
+- **REGULATORY_STRATEGY.md** - Master roadmap (FDA, IEC, NIST) [NEW]
+- **IEC_81001_5_1_SECURITY_PLAN.md** - Secure SDLC Plan [NEW]
+- **SECURITY_RISK_ANALYSIS.md** - AAMI TIR57 Threat Models [NEW]
+- **NIST_CSF_MAPPING.md** - NIST CSF Traceability Matrix [NEW]
+- **ISMS_CONTROLS_27001.md** - ISO 27001 Security Controls
 - **iso_27001_security_controls.md** - Detailed ISO 27001 control mapping
 - **iso_62304_lifecycle_plan.md** - IEC 62304 software lifecycle
 - **fda_21cfr820_traceability_matrix.md** - FDA 21 CFR 820 traceability
@@ -583,9 +612,9 @@ Comprehensive compliance documentation is maintained in the `compliance/` direct
 - **SOFTWARE_DESIGN_SPECIFICATION.md** - Design documentation
 - **SOFTWARE_REQUIREMENTS_SPECIFICATION.md** - Requirements traceability
 - **TEST_PLAN.md** - Test strategy and coverage
-- **TEST_REPORT.md** - Test execution results (310 tests)
+- **TEST_REPORT.md** - Test execution results (381 tests)
 - **TRACEABILITY_MATRIX.md** - Requirement-to-test traceability
-- **risk_management_summary.md** - Risk assessment and mitigation
+- **risk_management_summary.md** - Phase 1 Risk assessment
 
 For development workflow documentation, see `docs/dev/` directory.  
 For commercialization planning, see `docs/commercialization/` directory.
@@ -871,7 +900,8 @@ This project follows a dual-track development approach: **Regulatory Compliance*
 **Compliance Documentation**: See [`compliance/`](compliance/) directory for:
 - [ISO 27001 Security Controls](compliance/iso_27001_security_controls.md)
 - [FDA 21 CFR 820 Traceability Matrix](compliance/fda_21cfr820_traceability_matrix.md)
-- [Risk Management File](compliance/RISK_MANAGEMENT_FILE.md)
+- [Risk Management File (TIR57)](compliance/SECURITY_RISK_ANALYSIS.md)
+- [Regulatory Strategy](compliance/REGULATORY_STRATEGY.md)
 - [Software Requirements Specification](compliance/SOFTWARE_REQUIREMENTS_SPECIFICATION.md)
 
 ---
