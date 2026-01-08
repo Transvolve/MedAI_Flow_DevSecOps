@@ -1,7 +1,7 @@
 from typing import Dict
 from typing import Optional
 from pydantic_settings import BaseSettings
-from pydantic import Field, SecretStr
+from pydantic import Field, SecretStr, model_validator
 import secrets
 
 
@@ -65,12 +65,36 @@ class Settings(BaseSettings):
 
     # HTTPS Enforcement
     enforce_https: bool = Field(
-        default=False,
+        default=True,
         description="Enforce HTTPS for all incoming requests"
     )
 
     # Response Rate Limits (bytes/second)
     max_response_rate: int = 1_000_000  # 1MB/s
+
+    @model_validator(mode='after')
+    def load_users_and_check_security(self) -> 'Settings':
+        # Load users from USERS_JSON environment variable if present
+        import os
+        import json
+        import warnings
+        
+        users_json = os.environ.get("USERS_JSON")
+        if users_json:
+            try:
+                self.users = json.loads(users_json)
+            except json.JSONDecodeError:
+                warnings.warn("Invalid JSON in USERS_JSON environment variable. Falling back to default users.")
+        
+        # Check for hardcoded default users (Security Warning)
+        default_admin_hash_start = "$argon2id$v=19$m=65536,t=3,p=4$FKJUqpWy9h4jZOxdC"
+        if "admin" in self.users:
+            # We check if the password matches the hardcoded one partly
+            password = self.users["admin"].get("password", "")
+            if password.startswith(default_admin_hash_start):
+                 warnings.warn("SECURITY WARNING: Using default hardcoded users in config.py. Configure USERS_JSON for production!", UserWarning)
+
+        return self
 
     class Config:
         env_file = ".env"

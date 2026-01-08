@@ -24,6 +24,7 @@ Development guidelines, security policies, and integration guides:
 - **[README_LDRA_START_HERE.md](dev/README_LDRA_START_HERE.md)** - LDRA integration quick start
 - **[COMPLETE_DEVELOPMENT_PLAN.md](dev/COMPLETE_DEVELOPMENT_PLAN.md)** - Comprehensive development roadmap
 - **[SECURITY.md](dev/SECURITY.md)** - Security policies and procedures
+- **[PRODUCT_SECURITY_REPORT.md](PRODUCT_SECURITY_REPORT.md)** - Comprehensive product security & compliance report ⭐ **NEW**
 - **[CI_CD_PIPELINE_VERIFICATION.md](dev/CI_CD_PIPELINE_VERIFICATION.md)** - CI/CD pipeline verification guide
 - **[PR_DESCRIPTION.md](dev/PR_DESCRIPTION.md)** - Pull request guidelines
 
