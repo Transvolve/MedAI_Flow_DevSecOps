@@ -916,7 +916,8 @@ Please ensure commits maintain compliance traceability and secure coding standar
 **Author**
 Dr. Mehul Pancholi, PhD (Biomedical Engineering)
 Senior System & Software Engineer | Embedded IoT | AI/ML | Medical Device DevSecOps
-London, UK | LinkedIn: https://www.linkedin.com/in/mehul-pancholi-284453b/ 
+London, UK | LinkedIn: [Mehul Pancholi](https://www.linkedin.com/in/mehul-pancholi-284453b/)
+Web: [transvolveconsultancy.com](https://transvolveconsultancy.com) | Email: [transvolveconsultancy@gmail.com](mailto:transvolveconsultancy@gmail.com) 
 ---
 
 © Transvolve Consultancy Limited.  
