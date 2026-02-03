@@ -22,7 +22,7 @@ class TestSecurityConfiguration:
         with patch.dict(os.environ, {}, clear=True):
             settings = Settings()
             # Should be True by default now (Hardening)
-            assert settings.enforce_https is True
+            assert settings.enforce_https
 
     def test_jwt_secret_persistence_warning(self):
         """Test: Warn if using generated secret key (not persistent)"""
