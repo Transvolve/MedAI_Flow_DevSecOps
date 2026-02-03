@@ -78,7 +78,7 @@ class TestSettingsDefaults:
         print("\nDEBUG: Running test_enforce_https_default from updated file")
         settings = Settings()
         # Verified HTTPS enforcement
-        assert settings.enforce_https
+        assert settings.enforce_https == True, f"Expected enforce_https to be True, got {settings.enforce_https}"
 
     def test_max_response_rate_default(self):
         """Test max response rate defaults to 1MB/s."""
