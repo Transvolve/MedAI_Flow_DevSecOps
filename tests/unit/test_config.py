@@ -74,9 +74,9 @@ class TestSettingsDefaults:
         assert "localhost" in str(settings.cors_origins[0])
 
     def test_enforce_https_default(self):
-        """Test HTTPS enforcement defaults to False."""
+        """Test HTTPS enforcement defaults to True (secure by default)."""
         settings = Settings()
-        assert settings.enforce_https is False
+        assert settings.enforce_https is True
 
     def test_max_response_rate_default(self):
         """Test max response rate defaults to 1MB/s."""
