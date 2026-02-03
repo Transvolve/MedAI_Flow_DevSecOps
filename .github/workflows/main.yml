@@ -120,6 +120,7 @@ jobs:
           ACCESS_TOKEN_EXPIRE_MINUTES: "30"
           ENVIRONMENT: "ci"
           PYTHONWARNINGS: "ignore::UserWarning,ignore:PydanticDeprecatedSince20"
+          DATABASE_URL: "sqlite:///test.db"
         run: |
           pytest tests/ -v --disable-warnings --cov=backend/app --cov-report=term-missing
 
