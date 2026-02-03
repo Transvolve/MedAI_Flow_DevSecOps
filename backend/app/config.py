@@ -78,21 +78,25 @@ class Settings(BaseSettings):
         import os
         import json
         import warnings
-        
+
         users_json = os.environ.get("USERS_JSON")
         if users_json:
             try:
                 self.users = json.loads(users_json)
             except json.JSONDecodeError:
                 warnings.warn("Invalid JSON in USERS_JSON environment variable. Falling back to default users.")
-        
+
         # Check for hardcoded default users (Security Warning)
         default_admin_hash_start = "$argon2id$v=19$m=65536,t=3,p=4$FKJUqpWy9h4jZOxdC"
         if "admin" in self.users:
             # We check if the password matches the hardcoded one partly
             password = self.users["admin"].get("password", "")
             if password.startswith(default_admin_hash_start):
-                 warnings.warn("SECURITY WARNING: Using default hardcoded users in config.py. Configure USERS_JSON for production!", UserWarning)
+                warnings.warn(
+                    "SECURITY WARNING: Using default hardcoded users in config.py. "
+                    "Configure USERS_JSON for production!",
+                    UserWarning
+                )
 
         return self
 
