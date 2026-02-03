@@ -76,6 +76,7 @@ class TestSettingsDefaults:
     def test_enforce_https_default(self):
         """Test HTTPS enforcement defaults to True (secure by default)."""
         settings = Settings()
+        # Verified HTTPS enforcement
         assert settings.enforce_https is True
 
     def test_max_response_rate_default(self):
