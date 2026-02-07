@@ -26,20 +26,30 @@
 
 ## 📋 Project Overview
 
-MedAI Flow DevSecOps is a **production-grade, regulatory-compliant medical AI platform** for medical image analysis. This repository demonstrates a secure, automated, and standards-compliant CI/CD pipeline for medical imaging AI software.
+MedAI_Flow_DevSecOps is a **reference implementation of a delivery system designed to enforce secure behaviour across the lifecycle of an AI-enabled medical software system**.
 
-It integrates FastAPI, Azure Cloud (AKS + ACR), GitHub Actions, and PostgreSQL to showcase a production-grade, audit-ready DevSecOps workflow aligned with **FDA 21 CFR 11**, **ISO 27001**, **ISO 13485**, **IEC 62304**, and **HIPAA** standards.
+Rather than presenting cybersecurity and regulatory controls as point-in-time checks or static documentation, this repository demonstrates how **architecture, CI/CD pipelines, and automated evidence generation** can make secure behaviour the default as software, dependencies, infrastructure, and models evolve.
 
-### 🎓 What This Project Demonstrates
+The implementation focuses on **how delivery systems constrain change**, not on claiming compliance outcomes.
 
-- ✅ **Enterprise Medical AI Architecture** - FastAPI backend with ONNX model inference
-- ✅ **Regulatory Compliance** - Full FDA/ISO/HIPAA compliance mapping and documentation
-- ✅ **DevSecOps Pipeline** - Automated CI/CD with security scanning (GitHub Actions)
-- ✅ **Database Integration** - PostgreSQL with SQLAlchemy ORM and connection pooling (NEW)
-- ✅ **API Best Practices** - Batch processing, pagination, comprehensive error handling (NEW)
-- ✅ **Production Readiness** - Health monitoring, audit trails, user management
-- ✅ **Test-Driven Development** - 310+ passing tests with 100% pass rate
-- ✅ **Cloud-Native Deployment** - Docker/Kubernetes ready (Azure AKS)
+### 🎓 What This Project Illustrates
+
+- **Responsibility-driven system boundaries**  
+  Security, safety, and audit-relevant components are treated as part of the regulated system, regardless of where they run.
+
+- **Enforceable Secure SDLC**  
+  Security requirements, threat-informed controls, and verification activities are enforced through CI/CD pipelines, not left to intent or manual review.
+
+- **Lifecycle governance by design**  
+  Model updates, dependency changes, and infrastructure evolution are governed by the same delivery constraints as application code.
+
+- **Automated evidence generation**  
+  Test results, SBOMs, audit logs, and traceability artefacts are produced continuously as part of normal delivery activity.
+
+- **AI inside the governed lifecycle**  
+  Model inference, versioning, and update workflows are integrated into the same secure lifecycle, rather than handled in separate “ML ops” paths.
+
+This project is not a complete medical device, a prescriptive solution, or a claim of regulatory compliance. Its purpose is to make architectural trade-offs and delivery constraints visible, and to illustrate how secure and auditable behaviour can persist as systems change over time.
 
 ---
 
