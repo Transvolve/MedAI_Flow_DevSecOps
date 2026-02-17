@@ -740,7 +740,7 @@ bandit -r backend/ -ll
 ## 📞 Support & Communication
 
 ### For Questions or Issues
-- 📧 Email: devops@medaiflow.com
+- 📧 Email: transvolveconsultancy@gmail.com
 - 🐛 Bug Reports: Use GitHub Issues
 - 📋 Documentation: See `/docs` directory
 - 📋 Compliance Docs: See `/compliance` directory
